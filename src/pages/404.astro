@@ -1,0 +1,52 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="404: Page Not Found | Álvaro García Casas">
+	<section class="py-16 sm:py-24 max-w-2xl mx-auto text-center px-4">
+		<!-- Animated / Styled Biomedical Flatline to Pulse Graphic -->
+		<div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-[#10172b]/5 border border-[#10172b]/10 mb-8 shadow-inner">
+			<svg class="w-12 h-12 text-[#1a4478]" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+				<path 
+					d="M6 32h14l4-8 6 16 7-24 6 36 5-20 4 8h16" 
+					stroke-width="3" 
+					stroke-linecap="round" 
+					stroke-linejoin="round"
+				/>
+				<circle cx="58" cy="32" r="3" fill="#1a4478" />
+			</svg>
+		</div>
+
+		<!-- Status Code -->
+		<div class="inline-block px-3.5 py-1 rounded-full text-xs font-mono font-bold tracking-widest uppercase bg-[#1a4478]/10 text-[#1a4478] mb-4">
+			Error 404 • Signal Lost
+		</div>
+
+		<h1 class="text-4xl sm:text-5xl font-black text-[#10172b] tracking-tight mb-4">
+			Page not found.
+		</h1>
+		
+		<p class="text-base sm:text-lg text-[#485569] leading-relaxed max-w-md mx-auto mb-8">
+			The page or resource you are looking for has been moved, renamed, or does not exist.
+		</p>
+
+		<!-- Action buttons -->
+		<div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+			<a 
+				href="/" 
+				class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#10172b] text-white font-semibold text-sm hover:bg-[#1a4478] transition-all shadow-md shadow-[#10172b]/10"
+			>
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+				</svg>
+				Back to Homepage
+			</a>
+			<a 
+				href="/projects" 
+				class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-[#10172b]/15 bg-white text-[#10172b] font-semibold text-sm hover:border-[#1a4478] hover:text-[#1a4478] transition-all"
+			>
+				Explore Projects
+			</a>
+		</div>
+	</section>
+</MainLayout>

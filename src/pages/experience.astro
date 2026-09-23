@@ -1,0 +1,110 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout activeTab="experience" title="Experience | Álvaro García Casas">
+	<!-- Point 11: Empezar directamente sin títulos ni descripciones genéricas que sobran -->
+	<!-- Experience Timeline con padding superior y título normalizado -->
+	<section class="pt-10 pb-16">
+		<h1 class="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mb-12">
+			Professional & Research Experience
+		</h1>
+
+		<!-- Connected Timeline with Nodes (LinkedIn Style) -->
+		<div class="relative before:absolute before:inset-0 before:left-8 sm:before:left-10 before:w-0.5 before:bg-slate-200 space-y-12">
+			
+			<!-- Experience 1: Create-X Accelerator (First) -->
+			<div class="relative flex items-start gap-6 sm:gap-8">
+				<!-- Timeline Bullet Node -->
+				<div class="w-16 sm:w-20 shrink-0 flex items-center justify-center">
+					<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-slate-200 p-2 shadow-sm z-10 flex items-center justify-center">
+						<img src="/logos/create_x.png" alt="Create-X Georgia Tech Logo" class="w-full h-full object-contain" />
+					</div>
+				</div>
+
+				<!-- Content Card -->
+				<div class="flex-1 p-6 sm:p-8 rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-shadow">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+						<h2 class="text-lg sm:text-xl font-bold text-slate-950">
+							Co-Founder & Hardware Lead &nbsp;&bull;&nbsp; Create-X Venture Accelerator
+						</h2>
+						<span class="text-xs font-mono font-medium text-slate-500">
+							Jan 2026 – May 2026 &nbsp;&bull;&nbsp; Atlanta, GA
+						</span>
+					</div>
+
+					<p class="text-sm font-semibold text-[#1a4478] mb-4">
+						Smart Stove Safety Knob
+					</p>
+
+					<ul class="space-y-2.5 text-sm text-slate-600 leading-relaxed list-disc list-outside ml-4">
+						<li>
+							Led end-to-end mechanical and electronic development of a retrofit smart knob to mitigate unattended cooking fires, turning competitive seed funding and faculty mentorship into a validated functional prototype.
+						</li>
+						<li>
+							Synthesized a low-power spring-loaded ratchet mechanism with motion sensing shutoff and app-connected monitoring, targeting a sub-$50 retail price and a ~$15 manufacturing BOM.
+						</li>
+						<li>
+							Awarded Honorable Mention at the Georgia Tech Design Expo for technical design, kinematics, and user validation.
+						</li>
+					</ul>
+
+					<div class="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 text-xs font-mono text-slate-600">
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Mechatronic Design</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">SolidWorks & Kinematics</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Rapid Prototyping</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Solidworks</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">IoT & Sensor Integration</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Experience 2: Georgia Tech Medical Robotics (Second) -->
+			<div class="relative flex items-start gap-6 sm:gap-8">
+				<!-- Timeline Bullet Node -->
+				<div class="w-16 sm:w-20 shrink-0 flex items-center justify-center">
+					<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-slate-200 p-2 shadow-sm z-10 flex items-center justify-center">
+						<img src="/logos/medical_robotics_gt.png" alt="Medical Robotics at Georgia Tech Logo" class="w-full h-full object-contain" />
+					</div>
+				</div>
+
+				<!-- Content Card -->
+				<div class="flex-1 p-6 sm:p-8 rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-shadow">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+						<h2 class="text-lg sm:text-xl font-bold text-slate-950">
+							R&D Engineer &nbsp;&bull;&nbsp; Georgia Tech Medical Robotics
+						</h2>
+						<span class="text-xs font-mono font-medium text-slate-500">
+							Aug 2025 – May 2026 &nbsp;&bull;&nbsp; Atlanta, GA
+						</span>
+					</div>
+
+					<p class="text-sm font-semibold text-[#1a4478] mb-4">
+						Project Limbo &nbsp;&bull;&nbsp; Next-Generation Upper-Limb Myoelectric Prosthesis
+					</p>
+
+					<ul class="space-y-2.5 text-sm text-slate-600 leading-relaxed list-disc list-outside ml-4">
+						<li>
+							Contributed to Project Limbo, a multidisciplinary initiative integrating hardware, embedded software, and clinical biomechanics for transradial amputees.
+						</li>
+						<li>
+							Characterized residual forearm muscle activation patterns to optimize surface EMG electrode configurations for proportional myoelectric hand control.
+						</li>
+						<li>
+							Refined biosignal acquisition and neuromuscular decoding strategies, validating electrode placement to reach over 92% control accuracy and improving clinical performance metrics by 15%.
+						</li>
+					</ul>
+
+					<div class="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 text-xs font-mono text-slate-600">
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">sEMG Biosignal Processing</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Myoelectric Prosthetics R&D</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Neuromuscular Decoding</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Bio-Robotic Interfaces</span>
+						<span class="px-2.5 py-1 rounded bg-slate-100 font-semibold text-slate-700">Clinical Validation</span>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+</MainLayout>

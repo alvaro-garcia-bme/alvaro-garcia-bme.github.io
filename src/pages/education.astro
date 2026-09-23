@@ -1,0 +1,345 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout activeTab="education" title="Education & Skills | Álvaro García Casas">
+	<!-- Academic Trajectory: Con padding superior consistente de pt-10 y título text-3xl sm:text-4xl -->
+	<section class="pt-10 pb-16 border-b border-slate-200">
+		<h1 class="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mb-8">
+			Academic Trajectory
+		</h1>
+
+		<div class="space-y-6">
+			<!-- UC3M -->
+			<div class="p-6 sm:p-7 rounded-2xl border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row gap-5 items-start">
+				<!-- Logo UC3M Modern -->
+				<div class="w-16 h-16 rounded-xl border border-slate-200 bg-white p-2 shrink-0 flex items-center justify-center shadow-2xs">
+					<img src="/logos/uc3m_modern.png" alt="UC3M Logo" class="w-full h-full object-contain" />
+				</div>
+
+				<div class="flex-1">
+					<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-1">
+						<h2 class="text-lg font-bold text-slate-950">
+							Universidad Carlos III de Madrid (UC3M)
+						</h2>
+						<div class="text-right sm:text-right">
+							<span class="text-xs font-mono font-medium text-slate-500 block">Sep 2023 – May 2027</span>
+							<span class="text-xs font-medium text-slate-400 block">Madrid, España</span>
+						</div>
+					</div>
+					<p class="text-sm font-semibold text-[#1a4478] mb-2">
+						Bachelor of Science in Biomedical Engineering
+					</p>
+					<p class="text-sm text-slate-600 leading-relaxed">
+						Four-year engineering degree taught entirely in English, integrating bioinstrumentation, signal processing, and biomechanics. Recognized with dual regional Excellence Scholarships (2023, 2024) for academic performance across university studies.
+					</p>
+				</div>
+			</div>
+
+			<!-- Georgia Tech -->
+			<div class="p-6 sm:p-7 rounded-2xl border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row gap-5 items-start">
+				<!-- Logo Georgia Tech Modern -->
+				<div class="w-16 h-16 rounded-xl border border-slate-200 bg-white p-2 shrink-0 flex items-center justify-center shadow-2xs">
+					<img src="/logos/gatech_modern.png" alt="Georgia Tech Logo" class="w-full h-full object-contain" />
+				</div>
+
+				<div class="flex-1">
+					<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-1">
+						<h2 class="text-lg font-bold text-slate-950">
+							Georgia Institute of Technology
+						</h2>
+						<div class="text-right sm:text-right">
+							<span class="text-xs font-mono font-medium text-slate-500 block">Aug 2025 – May 2026</span>
+							<span class="text-xs font-medium text-slate-400 block">Atlanta, United States</span>
+						</div>
+					</div>
+					<p class="text-sm font-semibold text-[#1a4478] mb-2">
+						Bachelor of Science in Biomedical Engineering - Exchange
+					</p>
+					<p class="text-sm text-slate-600 leading-relaxed">
+						Upper-division laboratory coursework in Sensors & Instrumentation, Create-X Startup Accelerator, Medical Imaging, and neuroprosthetic myoelectric R&D.
+					</p>
+				</div>
+			</div>
+
+			<!-- Stanford CME -->
+			<div class="p-6 sm:p-7 rounded-2xl border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row gap-5 items-start">
+				<!-- Logo Stanford Modern -->
+				<div class="w-16 h-16 rounded-xl border border-slate-200 bg-white p-2 shrink-0 flex items-center justify-center shadow-2xs">
+					<img src="/logos/stanford_modern.png" alt="Stanford Medicine Logo" class="w-full h-full object-contain" />
+				</div>
+
+				<div class="flex-1">
+					<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-1">
+						<h2 class="text-lg font-bold text-slate-950">
+							Stanford University School of Medicine
+						</h2>
+						<div class="text-right sm:text-right">
+							<span class="text-xs font-mono font-medium text-slate-500 block">Sep 2023 – Sep 2025</span>
+							<span class="text-xs font-medium text-slate-400 block">Online</span>
+						</div>
+					</div>
+					<p class="text-sm font-semibold text-[#1a4478] mb-2">
+						Continuing Medical Education (CME)
+					</p>
+					<p class="text-sm text-slate-600 leading-relaxed">
+						Completed 300+ certified hours of advanced online training in medical innovation and clinical research, focusing on Artificial Intelligence in healthcare, diagnostic imaging technologies, and evidence-based clinical methodologies.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Technical Skills: Categorías sin subtítulo superfluo -->
+	<section class="py-16 border-b border-slate-200">
+		<div class="mb-8">
+			<h2 class="text-2xl font-bold text-slate-950 tracking-tight">
+				Technical Skills
+			</h2>
+		</div>
+
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+			<!-- 1. Hardware -->
+			<div class="p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs">
+				<h3 class="text-xs font-bold uppercase tracking-wider text-[#1a4478] mb-3">
+					1. Hardware
+				</h3>
+				<ul class="space-y-1.5 text-xs text-slate-700 font-medium">
+					<li>&bull; PCB Design (KiCad / Altium)</li>
+					<li>&bull; LTspice Circuit Simulation</li>
+					<li>&bull; Microcontrollers (ESP32, Arduino)</li>
+					<li>&bull; Analog Electronics & Op-Amps</li>
+					<li>&bull; Data Acquisition (DAQ)</li>
+					<li>&bull; Wearable Sensor Integration</li>
+					<li>&bull; Rapid Prototyping & Soldering</li>
+				</ul>
+			</div>
+
+			<!-- 2. Biosignals & Systems -->
+			<div class="p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs">
+				<h3 class="text-xs font-bold uppercase tracking-wider text-[#1a4478] mb-3">
+					2. Biosignals & Systems
+				</h3>
+				<ul class="space-y-1.5 text-xs text-slate-700 font-medium">
+					<li>&bull; ECG, EMG & GSR Acquisition</li>
+					<li>&bull; Digital Signal Processing (DSP)</li>
+					<li>&bull; MATLAB & SciPy Signal</li>
+					<li>&bull; Electrophysiology Mapping</li>
+					<li>&bull; IXTA DAQ Systems & LabChart</li>
+					<li>&bull; Spectral Analysis & FFT</li>
+					<li>&bull; Baseline Noise & Artifact Removal</li>
+				</ul>
+			</div>
+
+			<!-- 3. Software & AI -->
+			<div class="p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs">
+				<h3 class="text-xs font-bold uppercase tracking-wider text-[#1a4478] mb-3">
+					3. Software & AI
+				</h3>
+				<ul class="space-y-1.5 text-xs text-slate-700 font-medium">
+					<li>&bull; Python</li>
+					<li>&bull; PyTorch (Deep Learning & CNNs)</li>
+					<li>&bull; Simulink & System Modeling</li>
+					<li>&bull; Pandas & NumPy</li>
+					<li>&bull; SQL & Data Pipelines</li>
+					<li>&bull; LLMs & Prompt Engineering</li>
+					<li>&bull; App & Web Development</li>
+					<li>&bull; Git & GitHub Workflows</li>
+				</ul>
+			</div>
+
+			<!-- 4. Biomechanics & Imaging -->
+			<div class="p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs">
+				<h3 class="text-xs font-bold uppercase tracking-wider text-[#1a4478] mb-3">
+					4. Biomechanics & Imaging
+				</h3>
+				<ul class="space-y-1.5 text-xs text-slate-700 font-medium">
+					<li>&bull; CAD (SolidWorks & Onshape)</li>
+					<li>&bull; Finite Element Analysis (ABAQUS)</li>
+					<li>&bull; 3D Printing (FDM / SLA)</li>
+					<li>&bull; Laser Cutting & Fabrication</li>
+					<li>&bull; ImageJ & Fiji Macro Analysis</li>
+					<li>&bull; 3D Slicer & DICOM Formats</li>
+					<li>&bull; Technical 2D Drafting (GD&T)</li>
+				</ul>
+			</div>
+
+			<!-- 5. Wet Lab & Cell Assays -->
+			<div class="p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs">
+				<h3 class="text-xs font-bold uppercase tracking-wider text-[#1a4478] mb-3">
+					5. Wet Lab & Assays
+				</h3>
+				<ul class="space-y-1.5 text-xs text-slate-700 font-medium">
+					<li>&bull; Sterile Cell Culture</li>
+					<li>&bull; CCK-8 Proliferation</li>
+					<li>&bull; Microplate Spectrophotometry</li>
+					<li>&bull; Concentration-Response Curves</li>
+					<li>&bull; Aseptic Biosafety Lab</li>
+				</ul>
+			</div>
+		</div>
+
+		<!-- Languages: Dedicated Clean Bar -->
+		<div class="mt-8 p-4 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-medium">
+			<div class="flex items-center gap-3">
+				<span class="font-bold uppercase tracking-wider text-[11px] text-[#1a4478]">Languages:</span>
+				<span class="text-slate-800 font-semibold">Spanish <span class="text-slate-400 font-normal">(Native)</span></span>
+				<span class="text-slate-300">&bull;</span>
+				<span class="text-slate-800 font-semibold">English <span class="text-slate-400 font-normal">(C1 Advanced Certified)</span></span>
+			</div>
+			<span class="text-slate-500 font-mono text-[11px]">Bilingual Technical Communication</span>
+		</div>
+	</section>
+
+	<!-- Certifications: Incluyendo Akademia -->
+	<section class="py-16 border-b border-slate-200">
+		<h2 class="text-2xl font-bold text-slate-950 tracking-tight mb-8">
+			Certifications
+		</h2>
+
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+			<!-- Cert 1: Akademia -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-[#1a4478] transition-colors shadow-2xs group">
+				<div>
+					<h3 class="text-sm font-bold text-slate-900 group-hover:text-[#1a4478] transition-colors">
+						Akademia Future Builders Fellow
+					</h3>
+					<span class="text-xs text-slate-500">Fundación Innovación Bankinter &bull; Innovation, Strategy & Tech</span>
+				</div>
+				<a href="/certifications/akademia-future-builders.pdf" target="_blank" class="text-xs font-bold text-[#1a4478] hover:text-[#10172b] shrink-0 font-mono">
+					Verify &nearr;
+				</a>
+			</div>
+
+			<!-- Cert 2: Good Clinical Practice (GCP) -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-[#1a4478] transition-colors shadow-2xs group">
+				<div>
+					<h3 class="text-sm font-bold text-slate-900 group-hover:text-[#1a4478] transition-colors">
+						Good Clinical Practice (GCP)
+					</h3>
+					<span class="text-xs text-slate-500">NIDA Clinical Trials Network &bull; NIH &bull; Clinical Research Protocol</span>
+				</div>
+				<a href="/certifications/gcp-certificate.pdf" target="_blank" class="text-xs font-bold text-[#1a4478] hover:text-[#10172b] shrink-0 font-mono">
+					Verify &nearr;
+				</a>
+			</div>
+
+			<!-- Cert 3: Elements of AI -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-[#1a4478] transition-colors shadow-2xs group">
+				<div>
+					<h3 class="text-sm font-bold text-slate-900 group-hover:text-[#1a4478] transition-colors">
+						Elements of AI
+					</h3>
+					<span class="text-xs text-slate-500">University of Helsinki & MinnaLearn &bull; AI Foundations & Ethics</span>
+				</div>
+				<a href="/certifications/elements-of-ai.pdf" target="_blank" class="text-xs font-bold text-[#1a4478] hover:text-[#10172b] shrink-0 font-mono">
+					Verify &nearr;
+				</a>
+			</div>
+
+			<!-- Cert 4: MIT Transformación Digital -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-[#1a4478] transition-colors shadow-2xs group">
+				<div>
+					<h3 class="text-sm font-bold text-slate-900 group-hover:text-[#1a4478] transition-colors">
+						MIT Transformación Digital
+					</h3>
+					<span class="text-xs text-slate-500">MIT Professional Education & Santander Open Academy</span>
+				</div>
+				<a href="/certifications/mit-digital-transformation.pdf" target="_blank" class="text-xs font-bold text-[#1a4478] hover:text-[#10172b] shrink-0 font-mono">
+					Verify &nearr;
+				</a>
+			</div>
+
+			<!-- Cert 5: Stanford Medicine -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-[#1a4478] transition-colors shadow-2xs group">
+				<div>
+					<h3 class="text-sm font-bold text-slate-900 group-hover:text-[#1a4478] transition-colors">
+						Stanford: Advanced Course in Improvement Science
+					</h3>
+					<span class="text-xs text-slate-500">Stanford University School of Medicine &bull; Clinical Excellence</span>
+				</div>
+				<a href="/certifications/stanford-improvement-science.pdf" target="_blank" class="text-xs font-bold text-[#1a4478] hover:text-[#10172b] shrink-0 font-mono">
+					Verify &nearr;
+				</a>
+			</div>
+
+			<!-- Cert 6: Johnson & Johnson -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-[#1a4478] transition-colors shadow-2xs group">
+				<div>
+					<h3 class="text-sm font-bold text-slate-900 group-hover:text-[#1a4478] transition-colors">
+						Johnson & Johnson Robotics & Controls
+					</h3>
+					<span class="text-xs text-slate-500">J&J MedTech & Forage &bull; Surgical Robotics & Controls</span>
+				</div>
+				<a href="/certifications/jnj-robotics-controls.pdf" target="_blank" class="text-xs font-bold text-[#1a4478] hover:text-[#10172b] shrink-0 font-mono">
+					Verify &nearr;
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<!-- Honors & Awards: Ordered by year (2023 -> 2026) -->
+	<section class="py-16">
+		<h2 class="text-2xl font-bold text-slate-950 tracking-tight mb-8">
+			Honors & Awards
+		</h2>
+
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+			<!-- 2023 -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+				<div class="flex items-center justify-between mb-1.5">
+					<h3 class="text-sm font-bold text-slate-900">
+						Excellence Scholarship
+					</h3>
+					<span class="text-xs font-mono font-semibold text-[#1a4478] bg-blue-50 px-2 py-0.5 rounded">2023</span>
+				</div>
+				<span class="text-xs font-semibold text-slate-600 block mb-1">Community of Madrid</span>
+				<p class="text-xs text-slate-500 leading-relaxed">
+					Awarded for academic excellence across high school and university entrance standing.
+				</p>
+			</div>
+
+			<!-- 2024 -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+				<div class="flex items-center justify-between mb-1.5">
+					<h3 class="text-sm font-bold text-slate-900">
+						Excellence Scholarship
+					</h3>
+					<span class="text-xs font-mono font-semibold text-[#1a4478] bg-blue-50 px-2 py-0.5 rounded">2024</span>
+				</div>
+				<span class="text-xs font-semibold text-slate-600 block mb-1">Community of Madrid</span>
+				<p class="text-xs text-slate-500 leading-relaxed">
+					Awarded for exceptional academic standing and top-tier university performance.
+				</p>
+			</div>
+
+			<!-- 2025 -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+				<div class="flex items-center justify-between mb-1.5">
+					<h3 class="text-sm font-bold text-slate-900">
+						International Mobility Award
+					</h3>
+					<span class="text-xs font-mono font-semibold text-[#1a4478] bg-blue-50 px-2 py-0.5 rounded">2025</span>
+				</div>
+				<span class="text-xs font-semibold text-slate-600 block mb-1">UC3M &bull; International Exchange</span>
+				<p class="text-xs text-slate-500 leading-relaxed">
+					Competitive academic grant for exchange at Georgia Institute of Technology.
+				</p>
+			</div>
+
+			<!-- 2026 -->
+			<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+				<div class="flex items-center justify-between mb-1.5">
+					<h3 class="text-sm font-bold text-slate-900">
+						Honorable Mention
+					</h3>
+					<span class="text-xs font-mono font-semibold text-[#1a4478] bg-blue-50 px-2 py-0.5 rounded">2026</span>
+				</div>
+				<span class="text-xs font-semibold text-slate-600 block mb-1">Georgia Tech Design Expo</span>
+				<p class="text-xs text-slate-500 leading-relaxed">
+					Recognized for the Smart Stove Safety Knob mechanical prototype design and execution.
+				</p>
+			</div>
+		</div>
+	</section>
+</MainLayout>

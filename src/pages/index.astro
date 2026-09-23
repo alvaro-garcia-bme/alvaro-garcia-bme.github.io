@@ -1,0 +1,187 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+
+const featuredProjects = [
+	{
+		title: 'Smart Stove Safety Knob.',
+		image: '/images/projects/smartknob-assembled.jpg',
+		link: '/projects/smart-stove-knob'
+	},
+	{
+		title: 'Wearable Tremor & Stress Sensor Cuff.',
+		image: '/images/projects/parkinson-wearable-hover.jpg',
+		link: '/projects/parkinson-wearable'
+	},
+	{
+		title: 'Cardiovascular Hemodynamics & Electrophysiology.',
+		image: '/images/projects/cardiac-ixta-hover.jpg',
+		link: '/projects/cardiac-electrophysiology'
+	},
+	{
+		title: 'Medical Image Detection & Classification (RSNA).',
+		image: '/images/projects/rsna-knee-cover.jpg',
+		link: '/projects/rsna-knee-abnormality'
+	},
+	{
+		title: 'Pulsatile Womersley Flow Simulation.',
+		image: '/images/projects/womersley-flow-cover.png',
+		link: '/projects/womersley-flow'
+	},
+	{
+		title: 'Quantitative Wet Lab: Glioblastoma Targeted Therapy.',
+		image: '/images/projects/cell-culture-lab.jpg',
+		link: '/projects/glioblastoma-ferroptosis-therapy'
+	}
+];
+---
+
+<MainLayout activeTab="home" title="Álvaro García Casas | Portfolio">
+	<!-- Hero Section: Balanced Left Column (Portrait + CV) & Stretched Horizontal Typography -->
+	<section class="py-12 sm:py-16">
+		<div class="w-full flex flex-col md:flex-row items-center md:items-start justify-start gap-8 md:gap-12 lg:gap-14">
+			<!-- Left Column: Portrait -->
+			<div class="flex flex-col items-center shrink-0 w-32 sm:w-36 md:w-40">
+				<div class="w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-lg bg-slate-100 relative group ring-1 ring-[#10172b]/10">
+					<img 
+						src="/avatar.jpg" 
+						alt="Álvaro García Casas" 
+						class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+						onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+					/>
+					<!-- Fallback when avatar.jpg is missing -->
+					<div class="w-full h-full p-2 hidden flex-col items-center justify-center text-center bg-gradient-to-br from-slate-100 to-slate-300 text-slate-600">
+						<div class="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center font-bold text-sm text-[#1a4478] mb-1">
+							AG
+						</div>
+						<span class="text-xs font-bold text-slate-800">Álvaro García</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Content: Stretched horizontally to reduce vertical height and fit seamlessly -->
+			<div class="flex-1 text-center md:text-left min-w-0">
+				<h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] font-extrabold text-[#10172b] tracking-tight leading-tight">
+					I’m Álvaro García,&nbsp;&nbsp;<span class="text-[#10172b]">a Biomedical Engineer.</span>
+				</h1>
+
+				<p class="mt-4 text-base sm:text-lg text-[#485569] leading-relaxed">
+					Fourth-year student at Universidad Carlos III de Madrid, currently completing an academic exchange at the Georgia Institute of Technology.
+				</p>
+
+				<p class="mt-2.5 text-base sm:text-lg text-[#485569] leading-relaxed">
+					I am genuinely passionate about medical devices and the role AI is playing in healthcare, especially in areas like electrophysiology and medical imaging.
+				</p>
+
+				<!-- 3 Action Buttons (Education, Projects, CV) -->
+				<div class="mt-6 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+					<a 
+						href="/education" 
+						class="w-full sm:w-auto px-8 py-2.5 rounded-lg bg-[#10172b] text-white font-bold text-xs uppercase tracking-widest hover:bg-[#1a4478] transition-all shadow-md text-center"
+					>
+						Education
+					</a>
+
+					<a 
+						href="/projects" 
+						class="w-full sm:w-auto px-8 py-2.5 rounded-lg bg-[#10172b] text-white font-bold text-xs uppercase tracking-widest hover:bg-[#1a4478] transition-all shadow-md text-center"
+					>
+						Projects
+					</a>
+
+					<a 
+						href="/CVs/CV_portfolio_EN.pdf" 
+						target="_blank" 
+						class="w-full sm:w-auto px-8 py-2.5 rounded-lg bg-[#10172b] text-white font-bold text-xs uppercase tracking-widest hover:bg-[#1a4478] transition-all shadow-md text-center inline-flex items-center justify-center gap-1.5 group/cv"
+					>
+						<span>CV</span>
+						<svg class="w-3.5 h-3.5 text-slate-300 group-hover/cv:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+						</svg>
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Horizontal Carousel of Projects (Davis Ryan Style - Image 3) -->
+	<section class="py-16 border-t border-[#10172b]/10">
+		<div class="flex items-center justify-between mb-8">
+			<div>
+				<h2 class="text-3xl sm:text-4xl font-extrabold text-[#10172b] tracking-tight">
+					Projects
+				</h2>
+				<p class="text-sm text-[#485569] mt-1">
+					Swipe or scroll horizontally to explore projects
+				</p>
+			</div>
+
+			<!-- Carousel Nav Arrows -->
+			<div class="hidden sm:flex items-center gap-3">
+				<button 
+					id="scroll-left" 
+					class="w-10 h-10 rounded-full bg-[#10172b] hover:bg-[#1a4478] text-white flex items-center justify-center transition-colors shadow-sm"
+					aria-label="Previous project"
+				>
+					&larr;
+				</button>
+				<button 
+					id="scroll-right" 
+					class="w-10 h-10 rounded-full bg-[#10172b] hover:bg-[#1a4478] text-white flex items-center justify-center transition-colors shadow-sm"
+					aria-label="Next project"
+				>
+					&rarr;
+				</button>
+			</div>
+		</div>
+
+		<!-- Scrollable Project Row -->
+		<div 
+			id="projects-carousel" 
+			class="flex gap-6 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory no-scrollbar"
+		>
+			{featuredProjects.map((p) => (
+				<div class="w-[300px] sm:w-[360px] shrink-0 snap-start flex flex-col group">
+					<!-- Project Image Container -->
+					<div class="w-full aspect-[16/10] rounded-xl overflow-hidden bg-white border border-[#10172b]/10 shadow-sm relative group-hover:shadow-md transition-shadow">
+						<img 
+							src={p.image} 
+							alt={p.title} 
+							class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+							onerror="this.src='/images/projects/smartknob.png';"
+						/>
+					</div>
+
+					<!-- Title & Button (Davis Ryan exact layout) -->
+					<h3 class="mt-4 text-xl font-bold text-[#10172b] leading-tight">
+						{p.title}
+					</h3>
+
+					<div class="mt-3">
+						<a 
+							href={p.link} 
+							class="inline-block px-6 py-2 rounded-md bg-[#10172b] text-white font-bold text-[11px] uppercase tracking-wider hover:bg-[#1a4478] transition-colors shadow-xs"
+						>
+							Learn More
+						</a>
+					</div>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<script>
+		// Horizontal Scroll Buttons Logic
+		const carousel = document.getElementById('projects-carousel');
+		const leftBtn = document.getElementById('scroll-left');
+		const rightBtn = document.getElementById('scroll-right');
+
+		if (carousel && leftBtn && rightBtn) {
+			leftBtn.addEventListener('click', () => {
+				carousel.scrollBy({ left: -380, behavior: 'smooth' });
+			});
+			rightBtn.addEventListener('click', () => {
+				carousel.scrollBy({ left: 380, behavior: 'smooth' });
+			});
+		}
+	</script>
+</MainLayout>

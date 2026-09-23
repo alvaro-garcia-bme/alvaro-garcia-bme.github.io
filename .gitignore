@@ -1,0 +1,25 @@
+# Build & Dependencies
+node_modules/
+dist/
+.astro/
+
+# Environment & Local secrets
+.env
+.env.*
+!.env.example
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Local accidental folders / scratch
+npm run dev/
+.turbo
+.parcel-cache
+
+# Local coursework & raw materials (keep repo light & fast)
+Proyectos/
+extracted_womersley_imgs/

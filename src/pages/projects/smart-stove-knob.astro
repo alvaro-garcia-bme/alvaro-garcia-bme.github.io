@@ -1,0 +1,1038 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+
+const metrics = [
+	{ label: 'Prototype BOM', value: '$27.12', detail: 'Target retail < $50 (vs $129–$498 competitors)' },
+	{ label: 'Return Torque', value: '0.328 N·m', detail: 'Mean across 800 trials · σ = 0.006 N·m' },
+	{ label: 'Shutoff Success', value: '98.7%', detail: '148/150 servo release trials across 5 angles' },
+	{ label: 'Stove Coverage', value: '800 Burners', detail: '10 electric + 10 gas stoves · 4 burners each' },
+];
+
+const bomItems = [
+	{ component: 'ESP32-C3 Microcontroller', specs: 'RISC-V 32-bit core, BLE 4.2, 4 MB flash, deep-sleep <5 µA', cost: '$5.41' },
+	{ component: 'PIR Sensor (AM312)', specs: 'Miniature cylindrical, 3–6 m range, 100–120° FOV, 3.3 V, <20 µA', cost: '$1.63' },
+	{ component: 'Hall Effect Sensor (A3144)', specs: 'Lateral mount switch, 6 mm NdFeB magnet, open-drain gating', cost: '$0.38' },
+	{ component: 'Micro Servo SG90 ×2', specs: 'Horizontal mount, 4.8 V, 1.8 kg·cm, 2.5 mm axial thrust', cost: '$4.34' },
+	{ component: 'Flat Spiral Spring', specs: 'AISI 1095 hardened steel, 6×0.5 mm strip, T_nom = 0.325 N·m', cost: '$3.26' },
+	{ component: 'Custom PCB (Circular Ø68 mm)', specs: '2-layer FR4, 1.6 mm, HASL, Gerber-fabricated EasyEDA', cost: '$1.00' },
+	{ component: 'Wiring + Connectors', specs: 'JST-PH 2.0 mm, 22 AWG silicone wiring, heat-shrink', cost: '$0.04' },
+	{ component: 'Fasteners & Consumables', specs: 'M2 standoffs, Sn63/Pb37 solder, flux, structural adhesive pad', cost: '$10.00' },
+	{ component: 'NdFeB Permanent Magnet', specs: '6 mm disc, N52 grade, embedded in bottom case lateral pocket', cost: '$0.06' },
+	{ component: 'Li-Ion Battery + USB-C', specs: '3.7 V 1200 mAh LiPo rechargeable, TP4056 charge controller', cost: '~$1.00' },
+];
+
+const competitors = [
+	{ name: 'SmartKnob (Ours)', detection: 'PIR (AM312) + Inactivity Timer', actuation: 'Mechanical spring return (fail-safe)', gas: true, install: true, price: '< $50', highlight: true },
+	{ name: 'Ome Smart Knob', detection: 'Knob position timer only', actuation: 'Motor-driven rotation (active)', gas: true, install: true, price: '~$129', highlight: false },
+	{ name: 'Smarturns', detection: 'PIR + external hub', actuation: 'Alert only (no physical shutoff)', gas: true, install: true, price: '~$245', highlight: false },
+	{ name: 'iGuardStove', detection: 'PIR + inline timer', actuation: 'Electrical power cutoff only', gas: false, install: false, price: '~$199', highlight: false },
+	{ name: 'FireAvert', detection: 'Smoke alarm sound trigger', actuation: 'Electrical power cutoff only', gas: false, install: false, price: '~$498', highlight: false },
+];
+
+const pivots = [
+	{ v: 'V1–V3', title: 'First Functional Spring', desc: 'Rotational spring mechanism validated. Identified yield failure in conventional torsion wire; pivoted to flat spiral clock-spring.' },
+	{ v: 'V4–V6', title: 'Solenoid → Dual Servo Pivot', desc: 'Solenoid current spike and axial stroke insufficient under high torque. Replaced with dual horizontal SG90 micro servos.' },
+	{ v: 'V7–V10', title: 'Internal Ridge Profile (Variant A)', desc: 'Eliminated separate pawl. Integrated 12 radial ramp ridges into bottom case inner wall with 3 locking legs on top case shaft.' },
+	{ v: 'V11–V12', title: 'Snap-Fit & Coaxial Integration', desc: 'Final snap-fit latches permitting 2.5 mm axial travel with hard retention stop. Coaxial runout ≤0.1 mm across full 350° rotation.' },
+];
+
+const springData = [
+	{ width: '6', thickness: '0.4', torque: '0.208', sf: '1.03', status: 'Low margin' },
+	{ width: '6', thickness: '0.5', torque: '0.325', sf: '1.62', status: 'SELECTED ◄' },
+	{ width: '6', thickness: '0.6', torque: '0.468', sf: '2.33', status: 'Pass (oversized)' },
+	{ width: '8', thickness: '0.5', torque: '0.433', sf: '2.16', status: 'Pass' },
+	{ width: '10', thickness: '0.5', torque: '0.542', sf: '2.69', status: 'Pass (oversized)' },
+];
+
+const testResults = [
+	{ test: 'Servo Disengagement (45°–350°)', trials: '150', result: '148/150 (98.7%)', note: '100% success after symmetric horn alignment' },
+	{ test: 'Spring Return Torque (0°–360°)', trials: '50', result: '0.318–0.337 N·m', note: 'Mean 0.328 N·m, all > 0.305 N·m requirement' },
+	{ test: 'Shaft Compatibility (3 Types)', trials: '50', result: '50/50 (100%)', note: 'D-Shaft, Double-D, Round/Splined (4–8 mm)' },
+	{ test: 'Thermal Stability (Sustained)', trials: '134°C stove panel', result: '< 0.5 mm deflection', note: 'Worst-case top-mount electric range' },
+	{ test: 'Ridge Retention Endurance', trials: '500 cycles', result: '< 0.1 mm wear', note: 'Zero crack initiation at ridge root fillet' },
+	{ test: 'BLE Pairing Latency', trials: '6 users', result: '42 s mean', note: 'From app launch to confirmed device handshake' },
+	{ test: 'Tool-Free Installation', trials: '6 users', result: '4.6 min mean', note: 'Range 3.4–5.9 min, zero hand tools required' },
+];
+
+const scaleData = [
+	{ units: '1,000', cost: '$28.15' },
+	{ units: '10,000', cost: '$16.98' },
+	{ units: '50,000', cost: '$13.25' },
+	{ units: '100,000', cost: '$10.98' },
+];
+
+const parts = [
+	{ 
+		id: 'pir', 
+		num: '①', 
+		name: 'PIR Sensor (AM312)', 
+		cad: 'AM312_Module.SLDPRT',
+		material: 'Pyroelectric ceramic / HDPE Fresnel dome',
+		role: 'Proximity & Human Presence Detection',
+		desc: 'Miniature cylindrical passive infrared sensor mounted pointing upward through a dedicated Ø10 mm aperture on the top case face. Detects adult thermal motion at 3–6 meters within a 100–120° solid detection cone. Quiescent current consumption is under 20 µA at 3.3 V. By mounting on the outward-facing rotating shell, it maintains an uninterrupted field of view toward the standing cook regardless of knob rotation angle.', 
+		specs: ['Type: AM312 Cylindrical', 'Range: 3–6 meters', 'FOV: 100–120° Cone', 'Draw: <20 µA Quiescent', 'Port: Ø10 mm face aperture'] 
+	},
+	{ 
+		id: 'top', 
+		num: '②', 
+		name: 'Top Case (Rotating Shell)', 
+		cad: 'Top_part_case_v12.SLDPRT',
+		material: 'High-Temp PLA (Prototype) / PA12-CF (Production)',
+		role: 'User Interface & Ratchet Locking Member',
+		desc: 'Matte black cylindrical lid (Ø86.00 mm outer diameter, 19.70 mm height) that rotates with the cook\'s hand. Extends a central shaft (Ø7.00 mm bore) with 3 integrated radial locking legs (Detail C on drawing) that ride along the 12 inner ridges of the bottom case. Features an aperture for the AM312 PIR sensor and internal pockets for the rechargeable battery pack. Section D-D shows 1.00 mm wall thickness with reinforced 2.35 mm hub.', 
+		specs: ['Diameter: Ø86.00 mm', 'Height: 19.70 mm', '3 Locking Legs (Detail C)', 'PIR Aperture: Ø10.00 mm', 'Finish: Matte VDI 30'] 
+	},
+	{ 
+		id: 'battery', 
+		num: '③', 
+		name: 'Rechargeable Battery & USB-C', 
+		cad: 'Battery_Pack_1200mAh.SLDPRT',
+		material: 'Lithium-Polymer Cell / TP4056 IC',
+		role: 'Power Management & Fail-Safe Energy',
+		desc: '3.7 V 1200 mAh LiPo rechargeable battery with integrated TP4056 charging IC and USB-C port on the side wall (also compatible with 3× AA configuration). Crucially, the battery circuit is physically gated by the lateral reed switch (Hall effect) at the OFF position: when the stove is off, the circuit is open, resulting in true zero-current standby (0 µA). A depleted battery cannot prevent physical shutoff, as return energy is stored mechanically in the spring.', 
+		specs: ['Chemistry: LiPo (3.7 V 1200 mAh)', 'Charging: USB-C (5 V / 1 A)', 'Standby Draw: 0 µA at OFF (Hardware gate)', 'Burst: 1.2 A for dual servos'] 
+	},
+	{ 
+		id: 'middle', 
+		num: '④', 
+		name: 'PCB Case (Middle Case)', 
+		cad: 'PCB case V12.SLDPRT',
+		material: 'High-Temp PLA (FDM)',
+		role: 'Electronics Enclosure & Coaxial Alignment Spacer',
+		desc: 'Cylindrical structural sleeve (Ø86.00 mm outer diameter, 75.00 mm section height, 20.00 × 19.00 mm cross-section) positioned between the top and bottom cases. It houses and protects the circular PCB, isolating electronics from thermal conduction and grease. Features an external alignment key tab (3.55 × 10.97 mm, R3.95 mm) that interlocks with the bottom case to guarantee strict coaxial alignment without rotational play.', 
+		specs: ['CAD: PCB case V12.SLDPRT', 'Outer Diameter: Ø86.00 mm', 'Section Height: 75.00 mm', 'Key Tab: 3.55 × 10.97 mm', 'FR4 Board Tray: Ø68.00 mm'] 
+	},
+	{ 
+		id: 'pcb', 
+		num: '⑤', 
+		name: 'Circular PCB + ESP32-C3', 
+		cad: 'SmartKnob_PCB_v2.epro',
+		material: '2-Layer FR4 / 1.6 mm / HASL Lead-Free',
+		role: 'System Brain, Sensing I/O & BLE Comms',
+		desc: 'Custom circular PCB (Ø68.00 mm) centered on an ESP32-C3 32-bit RISC-V microcontroller (160 MHz). Routes PWM signal channels to both SG90 micro servos, reads the digital output from the AM312 PIR sensor, monitors the lateral Hall effect switch, samples battery voltage via resistor divider, and manages the 2.4 GHz BLE 4.2 protocol stack for instantaneous pairing with the companion mobile application.', 
+		specs: ['MCU: ESP32-C3 (RISC-V 160 MHz)', 'Wireless: BLE 4.2 (2.4 GHz)', 'Layers: 2-layer FR4 (1.6 mm)', 'GPIO: 6 lines utilized', 'Quiescent Sleep: <5 µA'] 
+	},
+	{ 
+		id: 'servos', 
+		num: '⑥', 
+		name: 'Dual Micro Servos SG90 (Horizontal)', 
+		cad: 'TowerPro_SG90_Micro.SLDPRT',
+		material: 'POM Gear Train / Polycarbonate Housing',
+		role: 'Axial Disengagement Actuators',
+		desc: 'Two SG90 micro servos mounted HORIZONTALLY in dedicated lateral cavities within the bottom case. When the ESP32-C3 issues a release command (due to expired inactivity timer or user remote shutoff), both servos fire simultaneously in a short PWM burst (<1.5 s). Their output horns push against the underside of the top case, imparting a 2.5 mm vertical axial displacement that lifts the 3 locking legs clear of the 12 radial ridges, instantly releasing the wound spring.', 
+		specs: ['Model: Tower Pro SG90 × 2', 'Torque: 1.8 kg·cm @ 4.8 V', 'Mounting: Horizontal (Zero axial height impact)', 'Travel: 2.5 mm axial lift', 'Burst Duration: 1.2 seconds'] 
+	},
+	{ 
+		id: 'spring', 
+		num: '⑦', 
+		name: 'Flat Spiral Spring (Clock Spring)', 
+		cad: 'Spiral_spring_v12_snapfit.SLDPRT',
+		material: 'AISI 1095 Hardened Spring Steel Strip',
+		role: 'Mechanical Potential Energy Storage',
+		desc: 'Constant-torque clock spring manufactured from 6.0 mm wide × 0.5 mm thick AISI 1095 spring steel strip. Housed within the lower bore of the bottom case. Unlike coil torsion springs whose stress scales linearly with rotation angle θ (exceeding allowable bending stress at large angles), flat spiral spring stress is governed by strip thickness and minimum mandrel radius (independent of θ). Delivers a nominal return torque of 0.325 N·m from 0° to 350° with a 1.62× safety factor.', 
+		specs: ['Material: AISI 1095 Hardened Steel', 'Strip: 6.0 mm width × 0.5 mm thickness', 'Nominal Torque: 0.325 N·m (Constant)', 'Safety Factor: 1.62× vs 0.201 N·m peak', 'Stroke: 0° to 350° continuous'] 
+	},
+	{ 
+		id: 'bottom', 
+		num: '⑧', 
+		name: 'Bottom Case (Stationary Base)', 
+		cad: 'Casing_v12_snap_fit.SLDPRT',
+		material: 'High-Temp PLA / PA12-CF (150°C Rated)',
+		role: 'Stove Anchor, Ratchet Ridges & Spring Cavity',
+		desc: 'The stationary base of the assembly (Ø86.00 mm outer diameter, Ø50.00 mm inner bore, 32.50 mm height). Anchored to the stove control panel via a structural high-temperature adhesive pad. The inner wall incorporates 12 evenly distributed radial ridges (Detail C on drawing) with 30° spacing: ramped on the clockwise face for smooth manual rotation, steep on the counter-clockwise face to arrest spring return torque. Also houses the 4 snap-fit retention latches (Detail D), lateral magnet pocket (Detail F), and USB-C port cutout.', 
+		specs: ['Outer Diameter: Ø86.00 mm', 'Bore Diameter: Ø50.00 mm', '12 Radial Ridges (R38 mm, Detail C)', '4 Snap-Fit Latches (Detail D, 2.93 mm)', 'Lateral Magnet Slot (Detail F: 3.27 × 1.63 mm)'] 
+	},
+	{ 
+		id: 'adapter', 
+		num: '⑨', 
+		name: 'Modular Shaft Adapter (3 Types)', 
+		cad: 'Shaft_Adapter_Universal.SLDPRT',
+		material: 'Machined 6061-T6 Aluminum / Set-Screw Sleeve',
+		role: 'Universal Valve Stem Coupling',
+		desc: 'Modular set-screw adapter sleeve positioned at the bottom center, coupling the internal mechanism directly to the stove valve stem. Shipped pre-installed in one of 3 interchangeable profile types covering 100% of residential gas and electric ranges: (1) D-Shaft, (2) Double-D Shaft, and (3) Round / Splined Shaft (4–8 mm diameter range). Tested across 800 burners (20 residential stoves: 10 electric, 10 gas) with zero slippage under 0.35 N·m reverse torque.', 
+		specs: ['Profiles: D-Shaft, Double-D, Round/Splined (3 Types)', 'Diameter Range: 4 to 8 mm', 'Fixation: M3 Stainless Steel Set-Screw', 'Validation: 800 burners tested (100% pass)', 'Installation: Slip-on, zero tools needed'] 
+	},
+];
+---
+
+<MainLayout activeTab="projects" title="Smart Stove Safety Knob | Álvaro García Casas">
+	<!-- Breadcrumb -->
+	<div class="pt-8 pb-4">
+		<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">&larr; Back to Engineering Projects</a>
+	</div>
+
+	<!-- Hero Header -->
+	<header class="pb-10 border-b border-[#10172b]/10">
+		<div class="flex flex-wrap items-center gap-2 mb-3">
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#1a4478]/10 text-[#1a4478] uppercase tracking-wider">Mechatronics &amp; Product Design</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-200 text-slate-700">CREATE-X Startup Accelerator &bull; Georgia Tech</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-amber-100 text-amber-800">Capstone Design Expo &bull; 2026</span>
+		</div>
+		<h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#10172b] tracking-tight leading-tight">Smart Stove Safety Knob</h1>
+		<p class="mt-4 text-base sm:text-lg text-[#485569] max-w-4xl leading-relaxed">
+			A fail-safe retrofit device that automatically shuts off unattended stovetops. A flat spiral clock spring stores mechanical return energy when turned ON; 12 radial ridges on the stationary inner casing retain the torque passively with zero electrical power. When the AM312 PIR sensor detects no presence and the user fails to respond via the BLE companion app, dual horizontal micro servos disengage the 3 locking legs via a 2.5 mm axial lift, and the spring drives the valve back to OFF. Gas &amp; electric compatible, tool-free install, sub-&dollar;50 BOM.
+		</p>
+		<div class="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-6 border-t border-[#10172b]/10 text-xs text-[#485569]">
+			<div class="flex flex-wrap items-center gap-4">
+				<span><strong class="text-[#10172b]">Lead Engineer &amp; PM:</strong> Álvaro García Casas</span>
+				<span><strong class="text-[#10172b]">Program:</strong> CREATE-X &middot; Georgia Institute of Technology</span>
+			</div>
+			<div class="flex flex-wrap gap-1.5">
+				{['Customer Discovery', 'Product Management', 'Market Validation', 'Regulatory Compliance', 'BOM & Cost Optimization', 'Go-to-Market Strategy', 'User Interviews', 'Patent & IP Strategy', 'FMEA Risk Analysis'].map(skill => (
+					<span class="px-2.5 py-1 rounded-md bg-[#1a4478]/10 border border-[#1a4478]/20 text-[#1a4478] font-medium text-[11px]">{skill}</span>
+				))}
+			</div>
+		</div>
+	</header>
+
+	<!-- Metrics Strip -->
+	<section class="py-10">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+			{metrics.map(m => (
+				<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-2xs">
+					<span class="text-xs font-medium text-[#485569] uppercase tracking-wider block mb-1">{m.label}</span>
+					<div class="text-2xl sm:text-3xl font-extrabold text-[#10172b] font-mono">{m.value}</div>
+					<span class="text-xs text-slate-500 mt-2 block font-medium">{m.detail}</span>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- Product Architecture: Assembled 3D Prototype & Technical CAD Drawings -->
+	<section class="py-8">
+		<div class="bg-[#0b1220] rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+			<!-- Header & Navigation Tabs -->
+			<div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
+				<div class="flex items-center gap-2">
+					<span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+					<h2 class="text-lg font-bold uppercase tracking-wider text-slate-100">Product Architecture &amp; SolidWorks CAD Drawings</h2>
+				</div>
+				<div class="flex flex-wrap gap-2" id="gallery-tabs">
+					<button data-tab="product" class="gallery-tab active px-4 py-2 rounded-lg text-xs font-bold font-mono bg-[#1a4478] text-white border border-cyan-400/30 transition-all cursor-pointer">
+						1 &middot; Assembled 3D Prototype
+					</button>
+					<button data-tab="drawings" class="gallery-tab px-4 py-2 rounded-lg text-xs font-bold font-mono bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer">
+						2 &middot; SolidWorks Technical Drawings (4 Sheets)
+					</button>
+				</div>
+			</div>
+
+			<!-- TAB 1: ASSEMBLED 3D PRODUCT VIEW -->
+			<div class="gallery-content mt-6" id="tab-product">
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+					<div class="lg:col-span-7">
+						<div class="relative rounded-2xl overflow-hidden border border-slate-700 bg-gradient-to-b from-slate-900 to-[#081422] p-2 shadow-2xl">
+							<img src="/images/projects/smartknob-assembled.jpg" alt="SmartKnob V12 Final Prototype installed on gas stovetop with AM312 PIR sensor" class="w-full h-auto object-cover rounded-xl" loading="lazy" />
+							<div class="absolute bottom-4 left-4 right-4 flex items-center justify-between px-3 py-2 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 text-[11px] font-mono">
+								<span class="text-cyan-300 flex items-center gap-1.5">
+									<span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+									AM312 PIR Dome Protruding Through Top Aperture
+								</span>
+								<span class="text-slate-400">Matte Black PLA &middot; Ø86 &times; 32.5 mm</span>
+							</div>
+						</div>
+					</div>
+					<div class="lg:col-span-5 space-y-4">
+						<div class="flex items-center gap-2">
+							<span class="px-2.5 py-1 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-mono text-xs">
+								V12 Physical Prototype
+							</span>
+							<span class="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs">
+								AM312 Sensor Integrated
+							</span>
+						</div>
+
+						<h3 class="text-xl font-extrabold text-white">Non-Intrusive Retrofit Enclosure</h3>
+						<p class="text-xs text-slate-300 leading-relaxed">
+							Engineered with a low-profile coaxial form factor (Ø86 mm prototype, 32.5 mm height) that slips directly over existing stove valve stems without modifying the appliance or voiding home insurance warranties.
+						</p>
+
+						<div class="space-y-2 text-xs font-mono">
+							<div class="flex justify-between text-slate-400 border-b border-slate-800 pb-1.5">
+								<span>PIR Integration</span>
+								<span class="text-cyan-300 font-semibold">AM312 protruding through top aperture</span>
+							</div>
+							<div class="flex justify-between text-slate-400 border-b border-slate-800 pb-1.5">
+								<span>Enclosure Material</span>
+								<span class="text-white font-semibold">High-Temp PLA (150°C rating)</span>
+							</div>
+							<div class="flex justify-between text-slate-400 border-b border-slate-800 pb-1.5">
+								<span>Thermal Resistance</span>
+								<span class="text-white font-semibold">Tested up to 134°C sustained</span>
+							</div>
+							<div class="flex justify-between text-slate-400 border-b border-slate-800 pb-1.5">
+								<span>Charging Interface</span>
+								<span class="text-white font-semibold">USB-C lateral slot (Li-Ion 1200 mAh)</span>
+							</div>
+							<div class="flex justify-between text-slate-400 border-b border-slate-800 pb-1.5">
+								<span>Valve Shaft Compatibility</span>
+								<span class="text-white font-semibold">3 types: D, Double-D, Round/Splined</span>
+							</div>
+							<div class="flex justify-between text-slate-400">
+								<span>Installation Time</span>
+								<span class="text-emerald-400 font-semibold">Slip-on, tool-free (4.6 min mean)</span>
+							</div>
+						</div>
+
+						<div class="pt-2">
+							<button id="btn-goto-drawings" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold font-mono text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/20">
+								<span>📐 Inspect SolidWorks Technical Drawings &amp; Cotas</span> &rarr;
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- TAB 3: SOLIDWORKS TECHNICAL DRAWINGS (PLANOS TÉCNICOS) -->
+			<div class="gallery-content hidden mt-6" id="tab-drawings">
+				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
+					<div class="flex flex-wrap gap-2" id="drawing-tabs">
+						<button data-drawing="assembly" class="drawing-tab active px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 cursor-pointer">
+							Sheet 1 &middot; Assembly Drawing
+						</button>
+						<button data-drawing="bottom" class="drawing-tab px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700 cursor-pointer">
+							Sheet 2 &middot; Bottom Case (12 Ridges)
+						</button>
+						<button data-drawing="topcase" class="drawing-tab px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700 cursor-pointer">
+							Sheet 3 &middot; Top Case (3 Legs)
+						</button>
+						<button data-drawing="pcbcase" class="drawing-tab px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700 cursor-pointer">
+							Sheet 4 &middot; PCB Case V12 (Middle)
+						</button>
+					</div>
+					<div class="flex items-center gap-2">
+						<button id="btn-zoom-in" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs border border-slate-700 cursor-pointer" title="Zoom In">+</button>
+						<button id="btn-zoom-out" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs border border-slate-700 cursor-pointer" title="Zoom Out">&minus;</button>
+						<button id="btn-zoom-reset" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs border border-slate-700 cursor-pointer">Reset</button>
+					</div>
+				</div>
+
+				<!-- Drawing 1: Assembly -->
+				<div class="drawing-view-container" id="drawing-assembly">
+					<div class="rounded-xl overflow-hidden border border-slate-700 bg-white cursor-zoom-in drawing-viewer">
+						<img src="/images/projects/report_page47_img0.png" alt="SmartKnob Assembly Technical Drawing SolidWorks" class="w-full h-auto drawing-img transition-transform duration-300" loading="lazy" />
+					</div>
+					<div class="mt-3 p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono flex flex-wrap items-center justify-between gap-2 text-slate-400">
+						<div><strong>DWG NO:</strong> Assembly Drawing &middot; Scale 1:2 &middot; Sheet A2 &middot; Units: mm</div>
+						<div class="flex gap-2">
+							<span class="text-cyan-400">Item 1: Bottom Case</span>
+							<span class="text-slate-600">&bull;</span>
+							<span class="text-cyan-400">Item 2: Top Case</span>
+							<span class="text-slate-600">&bull;</span>
+							<span class="text-cyan-400">Item 3: Rotational Spring</span>
+							<span class="text-slate-600">&bull;</span>
+							<span class="text-cyan-400">Item 4: PCB Case</span>
+							<span class="text-slate-600">&bull;</span>
+							<span class="text-cyan-400">Item 6: SG90 Servos &times;2</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Drawing 2: Bottom Case -->
+				<div class="drawing-view-container hidden" id="drawing-bottom">
+					<div class="rounded-xl overflow-hidden border border-slate-700 bg-white cursor-zoom-in drawing-viewer">
+						<img src="/images/projects/report_page47_img1.png" alt="Bottom Case Technical Drawing SolidWorks dimensions" class="w-full h-auto drawing-img transition-transform duration-300" loading="lazy" />
+					</div>
+					<div class="mt-3 p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono space-y-1 text-slate-400">
+						<div class="flex justify-between">
+							<span><strong>DWG NO:</strong> Bottom Case_drawing &middot; Material: PLA / PA12-CF &middot; Scale 1:1</span>
+							<span class="text-emerald-400 font-bold">12 Internal Radial Ridges (Variant A)</span>
+						</div>
+						<div class="flex flex-wrap gap-3 pt-1 text-[11px] text-slate-300">
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Outer: Ø86.00 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Inner Bore: Ø50.00 / Ø47.00 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Height: 32.50 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Detail C: 12 Ridges (R38.00 mm)</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Detail D: Snap Fit (4 legs, 2.93 mm)</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Detail F: Magnet Hole (3.27 &times; 1.63 mm)</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Drawing 3: Top Case -->
+				<div class="drawing-view-container hidden" id="drawing-topcase">
+					<div class="rounded-xl overflow-hidden border border-slate-700 bg-white cursor-zoom-in drawing-viewer">
+						<img src="/images/projects/report_page48_img0.png" alt="Top Case Technical Drawing SolidWorks dimensions" class="w-full h-auto drawing-img transition-transform duration-300" loading="lazy" />
+					</div>
+					<div class="mt-3 p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono space-y-1 text-slate-400">
+						<div class="flex justify-between">
+							<span><strong>DWG NO:</strong> Top Case &middot; Material: PLA / PA12-CF &middot; Scale 1:1</span>
+							<span class="text-cyan-400 font-bold">3 Locking Legs + Central Mandrel</span>
+						</div>
+						<div class="flex flex-wrap gap-3 pt-1 text-[11px] text-slate-300">
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Outer: Ø86.00 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Rim Height: 19.70 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Detail C: 3 Legs (R21.79 mm)</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Detail B: Inner Mandrel (Ø7.00 mm)</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Section D-D: 51.50 mm Total Depth</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Detail E: Rim Chamfer (2.50 mm)</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Drawing 4: PCB Case V12 -->
+				<div class="drawing-view-container hidden" id="drawing-pcbcase">
+					<div class="rounded-xl overflow-hidden border border-slate-700 bg-white cursor-zoom-in drawing-viewer">
+						<img src="/images/projects/report_page48_img1.png" alt="PCB Case V12 Technical Drawing SolidWorks dimensions" class="w-full h-auto drawing-img transition-transform duration-300" loading="lazy" />
+					</div>
+					<div class="mt-3 p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono space-y-1 text-slate-400">
+						<div class="flex justify-between">
+							<span><strong>DWG NO:</strong> PCB case V12 &middot; Material: PLA &middot; Scale 1:1</span>
+							<span class="text-amber-400 font-bold">Middle Case Structural Spacer</span>
+						</div>
+						<div class="flex flex-wrap gap-3 pt-1 text-[11px] text-slate-300">
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Diameter: Ø86.00 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Bore: Ø75.00 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Section: 20.00 &times; 19.00 mm</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Side Tab: 3.55 &times; 10.97 mm (R3.95 mm)</span>
+							<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Hole: Ø10.00 mm</span>
+						</div>
+					</div>
+				</div>
+
+				<p class="text-[10px] text-slate-500 mt-3 text-center font-mono">
+					Authentic SolidWorks Manufacturing Drawings &middot; Click image to zoom &middot; Standard A2 Title Blocks
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- System State Machine -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-8">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Firmware Logic</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">System State Machine</h2>
+			<p class="text-sm text-[#485569]">
+				Complete embedded decision flow. The firmware guarantees zero false shutoffs during attended cooking, and zero missed shutoffs when genuinely unattended.
+			</p>
+		</div>
+
+		<div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+				<!-- State 0 -->
+				<div class="rounded-xl border-2 border-slate-300 bg-slate-50 p-4 text-center relative">
+					<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-slate-200 text-[10px] font-mono font-bold text-slate-600">STATE 0</div>
+					<div class="mt-2 text-lg font-extrabold text-[#10172b]">STOVE OFF</div>
+					<div class="text-[10px] font-mono text-slate-500 mt-2 space-y-1">
+						<p>Hall switch = OPEN</p>
+						<p>ESP32 hardware cutoff</p>
+						<p>Standby: 0 &micro;A (Zero draw)</p>
+					</div>
+					<div class="hidden md:block absolute top-1/2 -right-5 text-[#1a4478] font-bold text-sm">&rarr;</div>
+				</div>
+
+				<!-- State 1 -->
+				<div class="rounded-xl border-2 border-emerald-400 bg-emerald-50 p-4 text-center relative">
+					<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-emerald-200 text-[10px] font-mono font-bold text-emerald-700">STATE 1</div>
+					<div class="mt-2 text-lg font-extrabold text-[#10172b]">COOKING</div>
+					<div class="text-[10px] font-mono text-emerald-700 mt-2 space-y-1">
+						<p>Hall = CLOSED &rarr; Wake</p>
+						<p>PIR continuous polling</p>
+						<p>Inactivity timer running</p>
+						<p>Spring wound + 12 ridges hold</p>
+					</div>
+					<div class="hidden md:block absolute top-1/2 -right-5 text-amber-500 font-bold text-sm">&rarr;</div>
+				</div>
+
+				<!-- State 2 -->
+				<div class="rounded-xl border-2 border-amber-400 bg-amber-50 p-4 text-center relative">
+					<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-200 text-[10px] font-mono font-bold text-amber-700">STATE 2</div>
+					<div class="mt-2 text-lg font-extrabold text-[#10172b]">SAFETY ALERT</div>
+					<div class="text-[10px] font-mono text-amber-700 mt-2 space-y-1">
+						<p>Push notification via BLE</p>
+						<p>30 s grace countdown</p>
+						<p>Escalating phone alarm</p>
+						<p>PIR still active</p>
+					</div>
+					<div class="hidden md:block absolute top-1/2 -right-5 text-red-500 font-bold text-sm">&rarr;</div>
+				</div>
+
+				<!-- State 3 -->
+				<div class="rounded-xl border-2 border-red-400 bg-red-50 p-4 text-center relative">
+					<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-red-200 text-[10px] font-mono font-bold text-red-700">STATE 3</div>
+					<div class="mt-2 text-lg font-extrabold text-[#10172b]">AUTO SHUTOFF</div>
+					<div class="text-[10px] font-mono text-red-700 mt-2 space-y-1">
+						<p>PWM pulse to dual servos</p>
+						<p>2.5 mm axial lift</p>
+						<p>Spring drives shaft &rarr; OFF</p>
+						<p>Execution: &lt;3 seconds</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Transition Rules -->
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+				<div class="p-3.5 rounded-xl bg-[#1a4478]/5 border border-[#1a4478]/20">
+					<p class="font-bold text-[#1a4478] mb-1">0 &rarr; 1 &middot; Rotation Trigger</p>
+					<p class="text-[#485569] leading-relaxed">Cook rotates knob away from OFF position. Embedded magnet moves away from lateral reed switch, closing circuit. ESP32 boots instantly. Spring winds, 12 ridges lock each 30°.</p>
+				</div>
+				<div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+					<p class="font-bold text-amber-800 mb-1">1 &rarr; 2 &middot; Inactivity Expiry</p>
+					<p class="text-[#485569] leading-relaxed">PIR reports no adult motion within 3–6 m cone for T<sub>inactivity</sub> (default 5 min). BLE push notification transmitted to companion app. 30 s grace period begins.</p>
+				</div>
+				<div class="p-3.5 rounded-xl bg-red-50 border border-red-200">
+					<p class="font-bold text-red-800 mb-1">2 &rarr; 3 &middot; Grace Expiry</p>
+					<p class="text-[#485569] leading-relaxed">User fails to respond within 30 seconds. ESP32 activates dual horizontal servos. 2.5 mm vertical lift disengages 3 legs from ridges. Spring snaps valve to OFF.</p>
+				</div>
+			</div>
+
+			<!-- Return Paths -->
+			<div class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+				<p class="text-xs font-bold text-emerald-800 mb-2">↩ Safe Return Paths (Preventing Nuisance Alarms):</p>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-emerald-950">
+					<p><strong>1 &rarr; 1:</strong> Any motion detected by PIR resets inactivity timer to 0.</p>
+					<p><strong>2 &rarr; 1:</strong> User taps &ldquo;Keep Cooking&rdquo; in mobile app &rarr; resets timer immediately.</p>
+					<p><strong>2 &rarr; 1:</strong> Cook walks back in front of stove during 30s grace &rarr; PIR auto-clears alert.</p>
+					<p><strong>2 &rarr; 3:</strong> User taps &ldquo;Shut Off Now&rdquo; &rarr; instant remote mechanical actuation.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Smart Edge Cases -->
+	<section class="py-8">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-2 flex items-center gap-1.5">
+					<span>🍲</span> <span>Slow Cooking Mode</span>
+				</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">
+					For long stews or simmering, cook sets an app timer (e.g. 45 min). PIR inactivity checks are suspended during this window, resuming standard 5-min monitoring upon timer expiration.
+				</p>
+			</div>
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-2 flex items-center gap-1.5">
+					<span>🔋</span> <span>Dead Battery Fail-Safe</span>
+				</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">
+					Return energy is purely mechanical (spring wound during manual turn-on). A depleted battery cannot prevent physical shutoff or slip the knob into an open flame hazard.
+				</p>
+			</div>
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-2 flex items-center gap-1.5">
+					<span>🚫</span> <span>Anti-False-Positive Filter</span>
+				</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">
+					PIR Fresnel lens tuned specifically for adult torso motion at stove height. In laboratory usability trials (6 users &times; 10 min cooking), zero false shutoffs occurred.
+				</p>
+			</div>
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-2 flex items-center gap-1.5">
+					<span>📱</span> <span>Instant Remote Shutoff</span>
+				</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">
+					User can manually trigger shutoff from anywhere in BLE range (~10 m). Measured latency between tapping &ldquo;Shut Off&rdquo; and valve return completion averaged 8.2 seconds.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Companion App Section -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Software Interface</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">Companion App &middot; BLE Spatial Monitor</h2>
+			<p class="text-sm text-[#485569]">
+				In Session 1 usability testing, traditional list-based navigation caused 50% wrong-knob selections. The redesign adopted a spatial 2&times;2 grid mirroring physical stovetop geography, achieving 100% correct identification in under 2 seconds.
+			</p>
+		</div>
+
+		<div class="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+			<!-- Phone Mockup -->
+			<div class="relative flex-shrink-0" style="width: 270px; height: 540px;">
+				<div class="absolute inset-0 rounded-[40px] shadow-2xl" style="background: linear-gradient(145deg, #2a2a3a, #111118); border: 1px solid #3a3a4a;">
+					<div class="absolute top-[10px] left-1/2 -translate-x-1/2 w-[80px] h-[22px] rounded-full" style="background: #0a0a12;"></div>
+					<div class="absolute rounded-[32px] overflow-hidden" style="top: 8px; left: 8px; right: 8px; bottom: 8px;">
+						<div class="h-[40px] flex items-end justify-between px-5 pb-1 text-[10px] font-mono" style="background: #0f172a; color: #94a3b8;">
+							<span>9:41</span>
+							<span class="font-bold text-white text-[11px]">SafeHeat</span>
+							<span>87% ⚡</span>
+						</div>
+
+						<!-- State: Unpaired -->
+						<div class="app-state" id="app-unpaired" style="background: #0f172a; height: calc(100% - 40px); padding: 14px;">
+							<p class="text-[10px] text-slate-400 mb-3 font-mono">Tap burner to pair via BLE</p>
+							<div class="grid grid-cols-2 gap-3">
+								{['Top Left', 'Top Right', 'Bot Left', 'Bot Right'].map(n => (
+									<div class="aspect-square rounded-xl border-2 border-dashed border-slate-600 flex flex-col items-center justify-center">
+										<div class="w-8 h-8 rounded-full border-2 border-slate-600 mb-1"></div>
+										<span class="text-[8px] text-slate-500 font-mono">{n}</span>
+										<span class="text-[7px] text-slate-600">Unpaired</span>
+									</div>
+								))}
+							</div>
+						</div>
+
+						<!-- State: Paired / Stove OFF -->
+						<div class="app-state hidden" id="app-paired" style="background: #0f172a; height: calc(100% - 40px); padding: 14px;">
+							<p class="text-[10px] text-emerald-400 mb-3 font-mono">✓ 4 Knobs Paired &middot; Stovetop OFF</p>
+							<div class="grid grid-cols-2 gap-3">
+								{['Top Left', 'Top Right', 'Bot Left', 'Bot Right'].map(n => (
+									<div class="aspect-square rounded-xl border-2 border-emerald-800 bg-emerald-950/30 flex flex-col items-center justify-center">
+										<div class="w-8 h-8 rounded-full border-2 border-emerald-600 flex items-center justify-center">
+											<span class="text-emerald-400 text-[9px] font-bold">OFF</span>
+										</div>
+										<span class="text-[8px] text-emerald-300 font-mono mt-1">{n}</span>
+									</div>
+								))}
+							</div>
+							<div class="mt-3 text-center">
+								<p class="text-[8px] text-slate-500 font-mono">Zero Standby Power &middot; Hardware Gated</p>
+							</div>
+						</div>
+
+						<!-- State: Burner Active with Timer -->
+						<div class="app-state hidden" id="app-active" style="background: #0f172a; height: calc(100% - 40px); padding: 14px;">
+							<p class="text-[10px] text-amber-400 mb-2 font-mono">🔥 Top-Left Burner Active</p>
+							<div class="grid grid-cols-2 gap-2.5">
+								<div class="aspect-square rounded-xl border-2 border-red-500 flex flex-col items-center justify-center relative overflow-hidden" style="background: radial-gradient(circle, rgba(239,68,68,0.2), rgba(15,23,42,1)); box-shadow: 0 0 20px rgba(239,68,68,0.2);">
+									<div class="w-8 h-8 rounded-full border-2 border-red-400 flex items-center justify-center" style="box-shadow: 0 0 10px rgba(239,68,68,0.4);">
+										<span class="text-red-300 text-[9px] font-bold">ON</span>
+									</div>
+									<span class="text-[8px] text-red-300 font-mono mt-1">Top Left</span>
+									<span class="text-[8px] text-red-400 font-bold" id="app-timer">08:42</span>
+								</div>
+								{['Top Right', 'Bot Left', 'Bot Right'].map(n => (
+									<div class="aspect-square rounded-xl border-2 border-slate-700 bg-slate-800/30 flex flex-col items-center justify-center">
+										<div class="w-8 h-8 rounded-full border-2 border-slate-600 flex items-center justify-center">
+											<span class="text-slate-500 text-[9px] font-bold">OFF</span>
+										</div>
+										<span class="text-[8px] text-slate-500 font-mono mt-1">{n}</span>
+									</div>
+								))}
+							</div>
+							<div class="mt-2 p-1.5 rounded-lg bg-emerald-900/30 border border-emerald-800 flex items-center justify-between text-[8px] font-mono">
+								<span class="text-emerald-400">● PIR Motion Active</span>
+								<span class="text-emerald-500">Timer Reset</span>
+							</div>
+							<div class="mt-1.5 p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-center">
+								<p class="text-[8px] text-slate-400 font-mono">Presets: 15m &middot; 30m &middot; 60m</p>
+							</div>
+						</div>
+
+						<!-- State: Escalating Alert -->
+						<div class="app-state hidden" id="app-alert" style="background: #0f172a; height: calc(100% - 40px); position: relative;">
+							<div class="absolute inset-0 flex flex-col items-center justify-center p-5" style="background: linear-gradient(180deg, rgba(127,29,29,0.3), rgba(15,23,42,0.98));">
+								<div class="w-12 h-12 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center mb-2 animate-pulse">
+									<span class="text-xl">⚠️</span>
+								</div>
+								<p class="text-red-400 font-bold text-xs mb-0.5 text-center">Stove Left Unattended!</p>
+								<p class="text-[8px] text-slate-400 mb-1 text-center">Top Left &middot; No motion for 5 min</p>
+								<div class="w-full bg-red-950/50 rounded-lg p-2 text-center mb-2.5 border border-red-800">
+									<p class="text-[8px] text-red-300 font-mono mb-0.5">Auto-shutoff in</p>
+									<p class="text-xl font-mono font-bold text-red-300" id="alert-countdown">0:27</p>
+								</div>
+								<div class="flex gap-2 w-full">
+									<button class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white text-[9px] font-bold">Keep Cooking</button>
+									<button class="flex-1 py-1.5 rounded-lg bg-red-600 text-white text-[9px] font-bold">Shut Off Now</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Switch Buttons + Features List -->
+			<div class="flex flex-col gap-3 lg:pt-4 w-full lg:max-w-sm">
+				<button data-app="unpaired" class="app-btn active px-4 py-2.5 rounded-lg text-xs font-bold font-mono bg-[#1a4478] text-white border border-cyan-400/30 text-left cursor-pointer">
+					1 &middot; Setup &amp; BLE Pairing
+				</button>
+				<button data-app="paired" class="app-btn px-4 py-2.5 rounded-lg text-xs font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 text-left cursor-pointer">
+					2 &middot; Standby (Stove OFF)
+				</button>
+				<button data-app="active" class="app-btn px-4 py-2.5 rounded-lg text-xs font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 text-left cursor-pointer">
+					3 &middot; Active Cooking + Timer
+				</button>
+				<button data-app="alert" class="app-btn px-4 py-2.5 rounded-lg text-xs font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 text-left cursor-pointer">
+					4 &middot; Safety Alert &amp; Grace Period
+				</button>
+
+				<div class="mt-2 p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs text-[#485569] space-y-1.5">
+					<p class="font-bold text-[#10172b]">Functional Specifications (Report 3):</p>
+					<ul class="list-disc list-inside text-[11px] space-y-0.5">
+						<li><strong>F1:</strong> Spatial 2&times;2 grid matching burner arrangement</li>
+						<li><strong>F2:</strong> BLE pairing per UID, one-to-one device bonding</li>
+						<li><strong>F3:</strong> Color feedback: grey=off, animated red=active flame</li>
+						<li><strong>F4:</strong> Per-burner countdown presets (15, 30, 60 min)</li>
+						<li><strong>F5:</strong> Escalating alerts: silent push &rarr; audible siren</li>
+						<li><strong>F6:</strong> Modal override: &ldquo;Keep Cooking&rdquo; or &ldquo;Shut Off&rdquo;</li>
+						<li><strong>F7:</strong> Auto-shutoff signal if unacknowledged</li>
+						<li><strong>F9:</strong> Remote manual cutoff from anywhere in home</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Mechanical Design & Spring Calculations -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Mechanical Engineering</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">Flat Spiral Spring &amp; Ratchet Engineering</h2>
+		</div>
+
+		<div class="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-xl mb-6">
+			<h4 class="text-sm font-bold text-amber-950 mb-2">Why a Flat Spiral (Clock) Spring — Not a Torsion Wire?</h4>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-amber-900 leading-relaxed">
+				<div>
+					<p class="font-bold mb-1">❌ Conventional Round-Wire Torsion Spring:</p>
+					<p>Bending stress scales directly with rotation angle (&sigma; &prop; &theta;). At 315° of knob rotation, a d=1.4 mm steel wire experiences ~3,800 MPa stress against 1,170 MPa yield limit. <strong>Yields permanently on first use.</strong></p>
+				</div>
+				<div>
+					<p class="font-bold mb-1">✅ Flat Spiral (Clock) Spring:</p>
+					<p>Stress is governed by strip thickness and minimum mandrel radius (&sigma; = E&middot;t / R<sub>min</sub>), <strong>independent of winding angle &theta;</strong>. Produces constant return torque (0.325 N&middot;m) across full 0°–350° stroke.</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden mb-6">
+			<div class="p-4 border-b border-slate-100 bg-slate-50/50">
+				<h3 class="text-sm font-bold text-[#10172b]">Strip Geometry Selection &middot; T<sub>nom</sub> = (&sigma;<sub>allow</sub> &middot; b &middot; t&sup2;) / 6</h3>
+				<p class="text-[10px] text-slate-500 mt-1 font-mono">&sigma;<sub>allow</sub> = 1,300 MPa (AISI 1095) &middot; Target: SF &ge; 1.5 vs measured peak resistance T<sub>peak</sub> = 0.201 N&middot;m</p>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-xs font-mono">
+					<thead class="bg-slate-100 text-slate-700 uppercase tracking-wider text-[11px]">
+						<tr>
+							<th class="p-3">Width b (mm)</th>
+							<th class="p-3">Thickness t (mm)</th>
+							<th class="p-3">T<sub>nom</sub> (N&middot;m)</th>
+							<th class="p-3">Safety Factor</th>
+							<th class="p-3">Design Verdict</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100 text-slate-600">
+						{springData.map(s => (
+							<tr class={s.status.includes('SELECTED') ? 'bg-emerald-50 font-bold' : 'hover:bg-slate-50'}>
+								<td class="p-3">{s.width}</td>
+								<td class="p-3">{s.thickness}</td>
+								<td class="p-3 font-bold">{s.torque}</td>
+								<td class="p-3">{s.sf}</td>
+								<td class={`p-3 ${s.status.includes('SELECTED') ? 'text-emerald-700 font-bold' : ''}`}>{s.status}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-1">12 Radial Ridges (Variant A)</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">Integrated into bottom case stationary wall. Ramp angle (42°) permits effortless clockwise turning; steep tooth face locks against reverse torque. Zero pawl, zero moving latches.</p>
+			</div>
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-1">2.5 mm Axial Lift Stroke</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">Dual horizontal SG90 micro servos thrust upward simultaneously. Lifts the 3 locking legs over ridge height. Spring instantly drives knob counter-clockwise to OFF in &lt;3 s.</p>
+			</div>
+			<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+				<h4 class="text-sm font-bold text-[#10172b] mb-1">Modular 3-Profile Adapter</h4>
+				<p class="text-xs text-[#485569] leading-relaxed">Accommodates D-Shaft, Double-D, and Round/Splined stems (4–8 mm). Setscrew collar locks onto stem without marring. Slip-on retrofit tested on 20 commercial ranges.</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Empirical Test Results -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Empirical Validation</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">Laboratory Test Results</h2>
+		</div>
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-xs font-mono">
+					<thead class="bg-slate-100 text-slate-700 uppercase tracking-wider text-[11px]">
+						<tr>
+							<th class="p-3.5">Validation Test</th>
+							<th class="p-3.5">Sample / Trials</th>
+							<th class="p-3.5">Measured Performance</th>
+							<th class="p-3.5">Observations &amp; Engineering Notes</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100 text-slate-600">
+						{testResults.map(t => (
+							<tr class="hover:bg-slate-50">
+								<td class="p-3.5 font-bold text-[#10172b] font-sans">{t.test}</td>
+								<td class="p-3.5">{t.trials}</td>
+								<td class="p-3.5 font-bold text-[#1a4478]">{t.result}</td>
+								<td class="p-3.5 font-sans text-slate-500">{t.note}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+			<div class="p-3.5 bg-slate-50 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+				<strong>Torque protocol:</strong> Calibrated digital force gauge at knob rim (radius r = 25 mm). Peak turning force measured across full 360° stroke. 800 total trials across 20 stoves (10 gas, 10 electric, 4 burners each). Mean torque: 0.148 N&middot;m &middot; &sigma; = 0.019 N&middot;m &middot; Absolute peak: <strong>T<sub>peak</sub> = 0.201 N&middot;m</strong>.
+			</div>
+		</div>
+	</section>
+
+	<!-- BOM & Mass Production Economics -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Cost Engineering</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">Bill of Materials &amp; Scale Economics</h2>
+		</div>
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+				<div class="overflow-x-auto">
+					<table class="w-full text-left text-xs font-mono">
+						<thead class="bg-slate-100 text-slate-700 uppercase tracking-wider text-[11px]">
+							<tr>
+								<th class="p-3">Component Item</th>
+								<th class="p-3">Engineering Specification</th>
+								<th class="p-3 text-right">Prototype Cost</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-100 text-slate-600">
+							{bomItems.map(i => (
+								<tr class="hover:bg-slate-50">
+									<td class="p-3 font-bold text-[#10172b] font-sans">{i.component}</td>
+									<td class="p-3 text-slate-500 font-sans">{i.specs}</td>
+									<td class="p-3 text-right font-bold text-[#10172b]">{i.cost}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+				<div class="p-3.5 bg-slate-50 border-t text-xs flex justify-between items-center">
+					<span><strong>Total Prototype BOM:</strong> ~$27.12 (Direct Materials)</span>
+					<span class="font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Target &lt;$50 Retail Achieved ✓</span>
+				</div>
+			</div>
+			<div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+				<div class="p-4 border-b bg-slate-50/50">
+					<h3 class="text-sm font-bold text-[#10172b]">Production Cost at Scale</h3>
+				</div>
+				<div class="p-4 space-y-3">
+					{scaleData.map(s => (
+						<div class="flex justify-between text-xs">
+							<span class="font-mono text-slate-500">{s.units} units</span>
+							<span class="font-mono font-bold text-[#10172b]">{s.cost} / unit</span>
+						</div>
+					))}
+					<div class="pt-3 border-t text-[11px] text-slate-500 leading-relaxed">
+						Sub-$20 per-unit cost target achieved at 10,000+ volume via hardened-tooling PA12-CF injection molding and automated pick-and-place PCB lines.
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Competitive Differentiation -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Market Benchmark</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">Competitive Landscape</h2>
+		</div>
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-xs font-mono">
+					<thead class="bg-slate-100 text-slate-700 uppercase tracking-wider text-[11px]">
+						<tr>
+							<th class="p-3.5">Product Name</th>
+							<th class="p-3.5">Detection Method</th>
+							<th class="p-3.5">Actuation Principle</th>
+							<th class="p-3.5 text-center">Gas Stove</th>
+							<th class="p-3.5 text-center">Tool-Free</th>
+							<th class="p-3.5 text-right">Unit Price</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100">
+						{competitors.map(c => (
+							<tr class={`hover:bg-slate-50 ${c.highlight ? 'bg-[#1a4478]/5' : ''}`}>
+								<td class={`p-3.5 font-sans font-bold ${c.highlight ? 'text-[#1a4478]' : 'text-[#10172b]'}`}>{c.name}</td>
+								<td class="p-3.5 font-sans text-slate-500">{c.detection}</td>
+								<td class="p-3.5 font-sans text-slate-500">{c.actuation}</td>
+								<td class="p-3.5 text-center text-slate-600 font-bold">{c.gas ? '✓' : '✗'}</td>
+								<td class="p-3.5 text-center text-slate-600 font-bold">{c.install ? '✓' : '✗'}</td>
+								<td class={`p-3.5 text-right font-bold ${c.highlight ? 'text-emerald-700' : 'text-slate-600'}`}>{c.price}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+			<div class="p-3.5 bg-slate-50 border-t text-xs text-slate-600">
+				<strong>Market Advantage:</strong> Only device combining fail-safe passive mechanical return, universal gas/electric compatibility, tool-free tenant retrofit, and sub-$50 BOM.
+			</div>
+		</div>
+	</section>
+
+	<!-- 12 Iterations & Outcome -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Engineering Journey</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">12 Iterations &rarr; V12 Final Prototype</h2>
+		</div>
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+			{pivots.map((p, i) => (
+				<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs relative">
+					<span class="text-[10px] font-mono font-bold text-[#1a4478] bg-[#1a4478]/10 px-2 py-0.5 rounded mb-2 inline-block">{p.v}</span>
+					<h4 class="text-sm font-bold text-[#10172b] mb-1">{p.title}</h4>
+					<p class="text-xs text-[#485569] leading-relaxed">{p.desc}</p>
+					{i < 3 && <div class="hidden lg:block absolute top-1/2 -right-3 text-slate-300 text-lg">&rarr;</div>}
+				</div>
+			))}
+		</div>
+
+		<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs">
+			<h3 class="text-2xl font-bold text-[#10172b] mb-4">Project Outcome &amp; Commercialization Roadmap</h3>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-[#485569] leading-relaxed">
+				<div>
+					<h4 class="font-bold text-[#10172b] mb-1 text-sm">Validated Physical Hardware</h4>
+					<p>V12 prototype fulfills all 6 mechanical &amp; safety requirements. 800-trial torque verification, 98.7% release reliability, 134°C thermal survival, and 500-cycle ridge endurance.</p>
+				</div>
+				<div>
+					<h4 class="font-bold text-[#10172b] mb-1 text-sm">User-Validated Spatial UI</h4>
+					<p>Session 2 usability achieved 100% correct burner identification within 2 seconds. Zero false-positive shutoffs. 42-second initial BLE bonding.</p>
+				</div>
+				<div>
+					<h4 class="font-bold text-[#10172b] mb-1 text-sm">Regulatory &amp; Production Path</h4>
+					<p>Patent-eligible combination claims for mechanical-electromechanical failsafe. Next phase: UL 60730 / IEC certification, hardened steel tooling, and 1,000-unit pilot batch.</p>
+				</div>
+			</div>
+			<div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-center">
+				<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">
+					&larr; Return to All Engineering Projects
+				</a>
+			</div>
+		</div>
+	</section>
+</MainLayout>
+
+<style>
+	.drawing-img { transition: transform 0.25s ease-out; transform-origin: center center; }
+	.drawing-viewer.zoomed .drawing-img { transform: scale(1.8); cursor: grab; }
+</style>
+
+<script is:inline>
+	// ==========================================
+	// 1. TOP GALLERY TABS (Product / Drawings)
+	// ==========================================
+	const galleryTabs = document.querySelectorAll('.gallery-tab');
+	const galleryContents = document.querySelectorAll('.gallery-content');
+
+	galleryTabs.forEach(tab => {
+		tab.addEventListener('click', () => {
+			const target = tab.getAttribute('data-tab');
+			galleryContents.forEach(c => c.classList.add('hidden'));
+			document.getElementById('tab-' + target)?.classList.remove('hidden');
+
+			galleryTabs.forEach(t => {
+				t.classList.remove('bg-[#1a4478]', 'text-white', 'border-cyan-400/30');
+				t.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+			});
+			tab.classList.add('bg-[#1a4478]', 'text-white', 'border-cyan-400/30');
+			tab.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+		});
+	});
+
+	document.getElementById('btn-goto-drawings')?.addEventListener('click', () => {
+		const drawingsTabBtn = document.querySelector('.gallery-tab[data-tab="drawings"]');
+		drawingsTabBtn?.click();
+	});
+
+	// ==========================================
+	// 4. SOLIDWORKS TECHNICAL DRAWINGS VIEWER
+	// ==========================================
+	const drawingTabs = document.querySelectorAll('.drawing-tab');
+	const drawingContainers = document.querySelectorAll('.drawing-view-container');
+
+	drawingTabs.forEach(tab => {
+		tab.addEventListener('click', () => {
+			const target = tab.getAttribute('data-drawing');
+			drawingContainers.forEach(dc => dc.classList.add('hidden'));
+			document.getElementById('drawing-' + target)?.classList.remove('hidden');
+
+			drawingTabs.forEach(t => {
+				t.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-400/40');
+				t.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700');
+			});
+			tab.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-400/40');
+			tab.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700');
+			resetDrawingZoom();
+		});
+	});
+
+	let currentZoom = 1.0;
+	function applyZoom(scale) {
+		currentZoom = Math.min(Math.max(scale, 0.8), 2.5);
+		document.querySelectorAll('.drawing-viewer img').forEach(img => {
+			img.style.transform = `scale(${currentZoom})`;
+		});
+	}
+
+	function resetDrawingZoom() {
+		currentZoom = 1.0;
+		applyZoom(1.0);
+	}
+
+	document.getElementById('btn-zoom-in')?.addEventListener('click', () => applyZoom(currentZoom + 0.3));
+	document.getElementById('btn-zoom-out')?.addEventListener('click', () => applyZoom(currentZoom - 0.3));
+	document.getElementById('btn-zoom-reset')?.addEventListener('click', () => resetDrawingZoom());
+
+	document.querySelectorAll('.drawing-viewer').forEach(viewer => {
+		viewer.addEventListener('click', () => {
+			if (currentZoom > 1.0) {
+				resetDrawingZoom();
+			} else {
+				applyZoom(1.8);
+			}
+		});
+	});
+
+	// ==========================================
+	// 5. COMPANION MOBILE APP SIMULATOR
+	// ==========================================
+	const appButtons = document.querySelectorAll('.app-btn');
+	const appStates = document.querySelectorAll('.app-state');
+
+	appButtons.forEach(btn => {
+		btn.addEventListener('click', () => {
+			const targetState = btn.getAttribute('data-app');
+			appStates.forEach(s => s.classList.add('hidden'));
+			document.getElementById('app-' + targetState)?.classList.remove('hidden');
+
+			appButtons.forEach(b => {
+				b.classList.remove('bg-[#1a4478]', 'text-white', 'border-cyan-400/30');
+				b.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-200');
+			});
+			btn.classList.add('bg-[#1a4478]', 'text-white', 'border-cyan-400/30');
+			btn.classList.remove('bg-slate-100', 'text-slate-700', 'border-slate-200');
+
+			if (targetState === 'active') startActiveTimer();
+			if (targetState === 'alert') startAlertCountdown();
+		});
+	});
+
+	let activeTimerInt, alertTimerInt;
+	function startActiveTimer() {
+		clearInterval(activeTimerInt);
+		let sec = 522; // 8:42
+		const timerEl = document.getElementById('app-timer');
+		if (!timerEl) return;
+		activeTimerInt = setInterval(() => {
+			sec--;
+			if (sec <= 0) { clearInterval(activeTimerInt); sec = 522; }
+			const m = Math.floor(sec / 60);
+			const s = String(sec % 60).padStart(2, '0');
+			timerEl.textContent = `${m}:${s}`;
+		}, 1000);
+	}
+
+	function startAlertCountdown() {
+		clearInterval(alertTimerInt);
+		let sec = 27;
+		const countdownEl = document.getElementById('alert-countdown');
+		if (!countdownEl) return;
+		alertTimerInt = setInterval(() => {
+			sec--;
+			if (sec <= 0) {
+				clearInterval(alertTimerInt);
+				countdownEl.textContent = '0:00';
+				return;
+			}
+			countdownEl.textContent = `0:${String(sec).padStart(2, '0')}`;
+		}, 1000);
+	}
+</script>

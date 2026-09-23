@@ -1,0 +1,159 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+
+const projects = [
+	{
+		id: 'smart-knob',
+		title: 'Smart Stove Safety Knob',
+		category: 'Mechatronics & Product Design',
+		institution: 'CREATE-X Startup Accelerator &bull; Georgia Institute of Technology',
+		year: '2026',
+		image: '/images/projects/smartknob-assembled.jpg',
+		tools: ['Product Design', 'Customer Discovery', 'CAD', 'Electronics', 'PCB Design', 'App Development', '3D Printing', 'Regulatory Strategy'],
+		description: 'Fail-safe retrofit device that automatically shuts off unattended stovetops. Spring-loaded ratchet mechanism stores mechanical energy when user turns knob ON; if PIR detects no presence, dual servos release the spring — driving the knob back to OFF. Works on gas & electric, tool-free install, sub-$50 BOM.',
+		link: '/projects/smart-stove-knob'
+	},
+	{
+		id: 'parkinson-wearable',
+		title: 'Wearable Forearm Sensor Cuff: Tremor & Autonomic Stress Biomarkers',
+		category: 'Instrumentation & Biosignals',
+		institution: 'Georgia Institute of Technology',
+		year: '2025',
+		image: '/images/projects/parkinson-wearable-hover.jpg',
+		tools: ['Biosignal Acquisition', 'Surface EMG & GSR', 'Hardware Prototyping', 'Digital Signal Processing (DSP)', 'In-Vivo Clinical Trials', 'Embedded Telemetry'],
+		description: 'Continuous forearm sensor cuff integrating surface EMG and GSR to quantify sympathetic stress impact on neurogenic tremor. Validated across 10 patients (5 trials each), demonstrating significant inverse correlation (p = 0.041, R² = 0.4266).',
+		link: '/projects/parkinson-wearable'
+	},
+	{
+		id: 'cardiac-electrophysiology',
+		title: 'Cardiovascular Hemodynamics & Electromechanical Waveform Profiling',
+		category: 'Electrophysiology & Vascular Biomechanics',
+		institution: 'Georgia Institute of Technology',
+		year: '2026',
+		image: '/images/projects/cardiac-ixta-hover.jpg',
+		tools: ['Cardiovascular Hemodynamics', 'ECG & PPG Acquisition', 'Pulse Wave Velocity (PWV)', 'Arterial Biomechanics', 'Signal Filtering', 'Data Analytics'],
+		description: 'Dual-channel synchronized biopotential (Lead II) and infrared photoplethysmography (PPG) profiling. Quantified pre-ejection latency, autonomic vasomotor response, and age-dependent arterial stiffening (SI: 5.61 → 12.80 m/s) across subjects aged 9–86.',
+		link: '/projects/cardiac-electrophysiology'
+	},
+	{
+		id: 'rsna-medical-imaging',
+		title: 'Medical Image Detection & Classification (RSNA Benchmark)',
+		category: 'Medical AI & Computer Vision',
+		institution: 'Radiological Society of North America (RSNA)',
+		year: '2026',
+		image: '/images/projects/rsna-knee-cover.jpg',
+		tools: ['Deep Learning', 'Computer Vision', 'PyTorch', 'Medical Imaging (DICOM)', 'Vision Transformers', 'Model Evaluation (ROC-AUC)'],
+		description: 'Deep Learning architectures (Vision Transformers & ConvNeXt) in PyTorch for automated multi-label detection of 12 knee anomalies in volumetric MRI, achieving 0.936 Macro ROC-AUC benchmark.',
+		link: '/projects/rsna-knee-abnormality'
+	},
+	{
+		id: 'womersley-flow',
+		title: 'Pulsatile Womersley Flow Simulation in Carotid Geometry',
+		category: 'Computational Modeling & Fluid Mechanics',
+		institution: 'Universidad Carlos III de Madrid',
+		year: '2025',
+		image: '/images/projects/womersley-flow-cover.png',
+		tools: ['Computational Fluid Dynamics (CFD)', 'Hemodynamic Modeling', 'Navier-Stokes Solvers', 'Numerical Simulation', 'MATLAB', 'Experimental Validation'],
+		description: 'Numerical resolution of Navier-Stokes for unsteady pulsatile flow across Womersley numbers (0.1 to 30), validating against physical pulsatile flow experiments.',
+		link: '/projects/womersley-flow'
+	},
+	{
+		id: 'cell-assays-biopharma',
+		title: 'Dual-Pathway Targeted Cytotoxicity in Glioblastoma (U87EGFP)',
+		category: 'Cellular Engineering & Oncology Therapeutics',
+		institution: 'Georgia Institute of Technology',
+		year: '2026',
+		image: '/images/projects/cell-culture-lab.jpg',
+		tools: ['Cell Culture (BSL-2)', 'In Vitro Assays', 'Targeted Oncology', 'Dose-Response Modeling', 'Microplate Spectrophotometry', 'Translational Research'],
+		description: 'In vitro oncology research evaluating ferroptotic (Erastin) and pro-oxidative (Ursolic Acid) dual-pathway cytotoxicity in U87EGFP glioblastoma. Quantified dose-response curves (IC₅₀ = 0.50 mM), additive tumor kill (~40%), and apoptotic morphology via 96-well spectrophotometry.',
+		link: '/projects/glioblastoma-ferroptosis-therapy'
+	}
+];
+---
+
+<MainLayout activeTab="projects" title="Projects | Álvaro García Casas">
+	<header class="pt-10 pb-8 border-b border-slate-200">
+		<h1 class="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+			Engineering Projects
+		</h1>
+		<p class="mt-3 text-base text-slate-600 max-w-3xl leading-relaxed">
+			A selection of engineering projects across mechatronics, electrophysiology, biosignal instrumentation, computational fluid mechanics, medical AI, and cellular therapeutics.
+		</p>
+	</header>
+
+	<!-- Projects Grid with Image Reveal on Hover Animation (Point 7) -->
+	<section class="py-12">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+			{projects.map((project) => (
+				<a 
+					id={project.id}
+					href={project.link || `#${project.id}`}
+					class="relative h-[340px] rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs hover:shadow-xl transition-all duration-300 group cursor-pointer block text-inherit no-underline"
+				>
+					<!-- LAYER 1: Default Information View -->
+					<div class="absolute inset-0 p-7 flex flex-col justify-between z-10 transition-opacity duration-300 group-hover:opacity-0">
+						<div>
+							<div class="flex items-center justify-between mb-3">
+								<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">
+									{project.category}
+								</span>
+								<span class="text-xs font-mono font-semibold text-slate-400">
+									{project.year}
+								</span>
+							</div>
+
+							<h2 class="text-xl font-bold text-slate-950 leading-snug">
+								{project.title}
+							</h2>
+
+							<p class="text-xs font-medium text-slate-500 mt-1 mb-3" set:html={project.institution}></p>
+
+							<p class="text-sm text-slate-600 leading-relaxed line-clamp-3">
+								{project.description}
+							</p>
+						</div>
+
+						<div>
+							<!-- Tools -->
+							<div class="flex flex-wrap gap-1.5 mb-4">
+								{project.tools.map((tool) => (
+									<span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+										{tool}
+									</span>
+								))}
+							</div>
+
+							<div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-semibold">
+								<span>Hover to view visual &rarr;</span>
+								<span class="text-slate-400 font-mono text-[11px]">Explore &rarr;</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- LAYER 2: Image Reveal on Hover (User Request 7) -->
+					<div class="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-105">
+						<img 
+							src={project.image} 
+							alt={project.title} 
+							class="w-full h-full object-cover"
+						/>
+						<!-- Dark Gradient Overlay for Readability -->
+						<div class="absolute inset-0 bg-gradient-to-t from-[#10172b] via-[#10172b]/70 to-transparent p-7 flex flex-col justify-end text-white">
+							<span class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+								{project.category}
+							</span>
+							<h3 class="text-xl font-bold leading-snug mb-2">
+								{project.title}
+							</h3>
+							<div class="mt-2">
+								<span class="inline-block px-5 py-2 rounded-lg bg-[#1a4478] hover:bg-[#10172b] text-white text-xs font-bold uppercase tracking-wider shadow-md transition-colors">
+									Explore Case Study &rarr;
+								</span>
+							</div>
+						</div>
+					</div>
+				</a>
+			))}
+		</div>
+	</section>
+</MainLayout>

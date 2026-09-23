@@ -1,0 +1,910 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+
+// Technical case study data
+const metrics = [
+	{ label: 'Young Adult Baseline (SI)', value: '5.61 m/s', detail: 'Optimal Clinical Reference (5–6 m/s)' },
+	{ label: 'Late-Life Arterial Stiffness', value: '12.80 m/s', detail: '+128% vs young baseline (86-yr subject)' },
+	{ label: 'Electromechanical Latency', value: '244 ms', detail: 'R-wave to distal finger pulse peak' },
+	{ label: 'Cold Vasoconstriction Response', value: '-92.6%', detail: 'Pulse amplitude drop (1.604 → 0.119 mV)' },
+];
+
+const subjectData = [
+	{ subject: 'Subject 1 (Young Adult)', age: '20', height: '1.56 m', si: '5.61 m/s', ri: '38.63%', bp: '95.8 / 60.9', hr: '69 bpm', rpp: '6,608', class: 'Optimal' },
+	{ subject: 'Subject 2 (Pediatric Female)', age: '9', height: '1.27 m', si: '7.74 m/s', ri: '33.68%', bp: '82.5 / 60.0', hr: '77 bpm', rpp: '6,349', class: 'Hypotensive' },
+	{ subject: 'Subject 3 (Middle-Aged Male)', age: '52', height: '1.85 m', si: '7.81 m/s', ri: '15.08%', bp: '115.7 / 73.6', hr: '65 bpm', rpp: '7,519', class: 'Optimal' },
+	{ subject: 'Subject 4 (Geriatric Male)', age: '86', height: '1.83 m', si: '12.80 m/s', ri: '38.42%', bp: '130.8 / 82.8', hr: '64 bpm', rpp: '8,370', class: 'Prehypertensive' },
+];
+
+const stressResponses = [
+	{ condition: 'Pre-Test Baseline', rr: '0.860 s', hr: '71 bpm', latency: '0.170 s', amp: '1.604 mV', state: 'Normothermic baseline' },
+	{ condition: 'Cold Pressor (1 min)', rr: '0.865 s', hr: '68 bpm', latency: '0.275 s', amp: '0.119 mV', state: 'Sympathetic vasoconstriction' },
+	{ condition: 'Cold Pressor (2 min)', rr: '0.790 s', hr: '77 bpm', latency: '0.260 s', amp: '0.184 mV', state: 'Sustained thermal defense' },
+	{ condition: 'Rewarming (1 min)', rr: '0.815 s', hr: '75 bpm', latency: '0.235 s', amp: '1.330 mV', state: 'Reactive hyperemic rebound' },
+	{ condition: 'Rewarming (2 min)', rr: '0.855 s', hr: '71 bpm', latency: '0.195 s', amp: '1.560 mV', state: 'Hemodynamic stabilization' },
+	{ condition: 'Local Heat (2 min)', rr: '0.698 s', hr: '86 bpm', latency: '0.145 s', amp: '1.950 mV', state: 'Arteriolar vasodilation' },
+];
+---
+
+<MainLayout activeTab="projects" title="Cardiovascular Electrophysiology & Arterial Hemodynamics | Álvaro García Casas">
+	<!-- Top Navigation Breadcrumb -->
+	<div class="pt-8 pb-4">
+		<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">
+			&larr; Back to Engineering Projects
+		</a>
+	</div>
+
+	<!-- Hero Header -->
+	<header class="pb-10 border-b border-[#10172b]/10">
+		<div class="flex flex-wrap items-center gap-2 mb-3">
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#1a4478]/10 text-[#1a4478] uppercase tracking-wider">
+				Electrophysiology &amp; Vascular Biomechanics
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-200 text-slate-700">
+				Georgia Institute of Technology
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-100 text-emerald-800">
+				In-Vivo Experimental Study
+			</span>
+		</div>
+
+		<h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#10172b] tracking-tight leading-tight">
+			Non-Invasive Cardiovascular Hemodynamics &amp; Electromechanical Profiling
+		</h1>
+
+		<p class="mt-4 text-base sm:text-lg text-[#485569] max-w-4xl leading-relaxed">
+			A synchronized dual-channel investigation coupling thoracic Lead II electrocardiography (ECG) with digital infrared photoplethysmography (PPG). Quantified electromechanical pre-ejection latency, autonomic vasomotor thermoregulation, and age-dependent arterial stiffening across lifespan cohorts (ages 9–86) using pulse contour analysis and the Moens-Korteweg hydrodynamic formulation.
+		</p>
+
+		<!-- Authorship & Tools Summary -->
+		<div class="mt-6 flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-[#10172b]/10 text-xs text-[#485569]">
+			<div class="flex items-center gap-4">
+				<span><strong class="text-[#10172b]">Lead Investigator:</strong> Álvaro García Casas</span>
+				<span><strong class="text-[#10172b]">Affiliation:</strong> Georgia Institute of Technology</span>
+			</div>
+			<div class="flex flex-wrap gap-1.5">
+				{['iWorx TA-ROAM', 'PPG-320 Plethysmograph', 'ECG Lead II', 'Pulse Wave Velocity', 'LabScribe', 'Matplotlib'].map(tool => (
+					<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-mono text-[11px]">
+						{tool}
+					</span>
+				))}
+			</div>
+		</div>
+	</header>
+
+	<!-- Key Metrics Strip -->
+	<section class="py-10">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+			{metrics.map(m => (
+				<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-2xs">
+					<span class="text-xs font-medium text-[#485569] uppercase tracking-wider block mb-1">
+						{m.label}
+					</span>
+					<div class="text-2xl sm:text-3xl font-extrabold text-[#10172b] font-mono">
+						{m.value}
+					</div>
+					<span class="text-xs text-slate-500 mt-2 block font-medium">
+						{m.detail}
+					</span>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- Interactive Cardiovascular Waveform Monitor (Live Canvas Simulator) -->
+	<section class="py-8">
+		<div class="bg-[#0b1220] rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+			<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+				<div>
+					<div class="flex items-center gap-2">
+						<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+						<h2 class="text-lg font-bold uppercase tracking-wider text-slate-100">
+							Synchronized Bio-Signal Monitor (ECG Lead II + Peripheral PPG)
+						</h2>
+					</div>
+					<p class="text-xs text-slate-400 mt-1">
+						Real-time visualization of myocardial electrical depolarization synchronized with digital infrared volumetric pulse arrival.
+					</p>
+				</div>
+
+				<!-- Simulator Controls -->
+				<div class="flex flex-wrap items-center gap-2" id="sim-controls">
+					<button data-state="resting" class="sim-btn active px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all bg-[#1a4478] text-white border border-cyan-400/30">
+						Resting Baseline (71 bpm)
+					</button>
+					<button data-state="cold" class="sim-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+						Cold Pressor (Vasoconstriction)
+					</button>
+					<button data-state="heat" class="sim-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+						Hyperthermia (Vasodilation)
+					</button>
+					<button data-state="exercise" class="sim-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+						Post-Exertion (95 bpm)
+					</button>
+				</div>
+			</div>
+
+			<!-- Oscilloscope Screen -->
+			<div class="mt-6 relative rounded-xl overflow-hidden bg-[#060b14] border border-slate-800">
+				<!-- Channel Headers & Indicators -->
+				<div class="absolute top-3 left-4 right-4 z-10 flex items-center justify-between text-[11px] font-mono text-slate-400 pointer-events-none">
+					<div class="flex items-center gap-6">
+						<span id="ch1-indicator" class="flex items-center gap-1.5 text-cyan-400 font-bold transition-colors duration-300">
+							<span id="ch1-dot" class="w-2 h-2 rounded-full bg-cyan-400 transition-colors duration-300"></span> CH1: ECG Lead II (Thoracic ROAM) &bull; 1.0 mV/div
+						</span>
+						<span id="ch2-indicator" class="flex items-center gap-1.5 text-amber-400 font-bold transition-colors duration-300">
+							<span id="ch2-dot" class="w-2 h-2 rounded-full bg-amber-400 transition-colors duration-300"></span> CH2: Digital Volume Pulse (PPG-320) &bull; 0.5 V/div
+						</span>
+					</div>
+					<div class="hidden sm:flex items-center gap-3 text-slate-400">
+						<span id="sim-rr-badge" class="bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 text-slate-300">
+							RR Period: <strong id="sim-rr-val" class="text-cyan-400">845 ms</strong>
+						</span>
+						<span id="sim-latency-badge" class="bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 text-slate-300">
+							R-to-Pulse Delay: <strong id="sim-latency-val" class="text-white">244 ms</strong>
+						</span>
+						<span id="sim-hr-badge" class="bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 text-slate-300">
+							HR: <strong id="sim-hr-val" class="text-white">71 bpm</strong>
+						</span>
+					</div>
+				</div>
+
+				<canvas id="ecgCanvas" width="960" height="360" class="w-full h-[320px] sm:h-[360px] block"></canvas>
+			</div>
+
+			<!-- Dynamic Clinical Annotation Bar -->
+			<div id="sim-explanation" class="mt-4 p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 leading-relaxed font-mono">
+				<strong class="text-cyan-400">[BASELINE NORM]:</strong> Physiological resting state. R-R = 897 ms (71 bpm). Normal ventricular depolarization initiates myocardial contraction; the systolic arterial pulse arrives at the distal phalanx ~244 ms later. Dicrotic notch clearly distinguished during aortic valve closure.
+			</div>
+		</div>
+	</section>
+
+	<!-- Section 1: Acquisition Pipeline & Electrode Setup -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Phase 1 &bull; Bioinstrumentation Architecture</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-4">
+				Data Acquisition (DAQ) &amp; Sensor Telemetry
+			</h2>
+			<p class="text-sm sm:text-base text-[#485569] leading-relaxed mb-6">
+				Biopotential recording in physiology labs is frequently contaminated by skeletal muscle motion artifacts and 60 Hz power-line interference. The experimental setup utilized the wireless <strong>iWorx TA-ROAM</strong> telemetry biopotential unit docked on an iWorx TA acquisition chassis, combined with an infrared transmission plethysmograph (PPG-320) on the finger.
+			</p>
+		</div>
+
+		<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-6">
+			<div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+				<h3 class="text-sm font-bold uppercase tracking-wider text-[#10172b] mb-4">
+					Electrode Configuration (Modified Lead II)
+				</h3>
+				<div class="rounded-xl overflow-hidden bg-slate-100 border border-slate-200 p-2 flex justify-center">
+					<img 
+						src="/images/projects/ecg-electrode-placement.png" 
+						alt="Electrode placement for iWorx ROAM" 
+						class="max-h-72 object-contain"
+					/>
+				</div>
+				<p class="text-xs text-slate-500 mt-3 text-center">
+					3-lead thoracic montage: Infraclavicular $(-)$, Left lower rib $(+)$, Sternal ground.
+				</p>
+			</div>
+
+			<div class="lg:col-span-7 space-y-4">
+				<div class="bg-white p-5 rounded-xl border border-slate-200">
+					<h4 class="text-sm font-bold text-[#10172b] mb-1">1. Thoracic Vector Orientation</h4>
+					<p class="text-xs sm:text-sm text-[#485569] leading-relaxed">
+						The positive lead $(+)$ was placed on the left anterior chest below the pectoralis major and the negative lead $(-)$ at the right subclavicular fossa. This approximates the anatomical mean electrical axis of ventricular depolarization (Einthoven Lead II), maximizing the signal-to-noise ratio of the R-wave peak.
+					</p>
+				</div>
+
+				<div class="bg-white p-5 rounded-xl border border-slate-200">
+					<h4 class="text-sm font-bold text-[#10172b] mb-1">2. Optical Photoplethysmography (PPG-320)</h4>
+					<p class="text-xs sm:text-sm text-[#485569] leading-relaxed">
+						Fastened with velcro to the volar aspect of the distal segment of the left middle finger. It illuminates dermal capillary beds with near-infrared light and detects transmitted photodiode current, registering local blood volume expansions synchronously with central aortic ejections.
+					</p>
+				</div>
+
+				<div class="bg-white p-5 rounded-xl border border-slate-200">
+					<h4 class="text-sm font-bold text-[#10172b] mb-1">3. Signal Conditioning &amp; Pre-Processing</h4>
+					<p class="text-xs sm:text-sm text-[#485569] leading-relaxed">
+						Hardware bandpass filtering (0.05 Hz high-pass to eliminate respiration baseline wander, 100 Hz low-pass to eliminate high-frequency EMG noise) with an active 60 Hz notch filter. A continuous mathematical pulse integral transform was applied in LabScribe to reconstruct smooth pressure-analog volume pulses.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Section 2: Vasomotor Reactivity Under Cold & Heat Stress -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-6">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Phase 2 &bull; Autonomic Physiology</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">
+				Vasomotor Autonomic Reactivity: Thermal Stress Profiling
+			</h2>
+			<p class="text-sm sm:text-base text-[#485569] leading-relaxed">
+				To characterize autonomic vascular regulation, the subject's left forearm was subjected to targeted acute localized cooling (ice water cold pressor) followed by rewarming and localized hyperthermia (heat pack). Pulse contour and propagation timing were logged continuously.
+			</p>
+		</div>
+
+		<!-- Stress Table -->
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+			<div class="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+				<h3 class="text-sm font-bold text-[#10172b]">
+					Experimental Thermal Response Dataset (Subject 1: 20-yr Young Adult)
+				</h3>
+				<span class="text-xs font-mono text-slate-500 font-semibold">
+					Empirical DAQ Telemetry
+				</span>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-xs font-mono">
+					<thead class="bg-slate-100 text-slate-700 uppercase tracking-wider text-[11px] border-b border-slate-200">
+						<tr>
+							<th class="p-3.5">Condition</th>
+							<th class="p-3.5">R-R Interval</th>
+							<th class="p-3.5">Heart Rate</th>
+							<th class="p-3.5">R-Pulse Latency</th>
+							<th class="p-3.5">Systolic Amplitude</th>
+							<th class="p-3.5">Physiological Mechanism</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100 text-slate-600">
+						{stressResponses.map(row => (
+							<tr class="hover:bg-slate-50/80 transition-colors">
+								<td class="p-3.5 font-bold text-[#10172b] font-sans">{row.condition}</td>
+								<td class="p-3.5">{row.rr}</td>
+								<td class="p-3.5 font-bold text-[#1a4478]">{row.hr}</td>
+								<td class="p-3.5">{row.latency}</td>
+								<td class="p-3.5 font-bold">{row.amp}</td>
+								<td class="p-3.5 font-sans text-slate-500">{row.state}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+			<div class="p-4 bg-slate-50 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+				<strong>Key Finding:</strong> Localized hypothermia induced profound peripheral vasoconstriction, dropping pulse amplitude by <strong>92.6%</strong> (1.604 mV &rarr; 0.119 mV) and increasing transit latency from 0.170 s to 0.275 s due to increased vascular resistance. Rewarming produced reactive hyperemic vasodilation, while direct heating expanded vascular cross-section, accelerating propagation (latency dropped to 0.145 s) and elevating pulse amplitude to 1.950 mV.
+			</div>
+		</div>
+	</section>
+
+	<!-- Section 3: Biomechanical Pulse Contour Analysis & Arterial Stiffening -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="max-w-4xl mb-8">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Phase 3 &bull; Hemodynamic Biomechanics</span>
+			<h2 class="text-2xl sm:text-3xl font-bold text-[#10172b] mt-1 mb-3">
+				Arterial Aging: Stiffness Index (SI) &amp; Moens-Korteweg Modeling
+			</h2>
+			<p class="text-sm sm:text-base text-[#485569] leading-relaxed">
+				Arterial compliance ($\Delta V / \Delta P$) acts as a hydraulic buffer (Windkessel effect), converting pulsatile left ventricular outflow into steady capillary perfusion. With aging, elastic fiber fragmentation and advanced glycation end-product (AGE) cross-linking of collagen elevate vessel wall stiffness. We quantified these alterations across four age groups using digital volume pulse contour analysis.
+			</p>
+		</div>
+
+		<!-- Equations Grid -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+			<div class="bg-white p-5 rounded-xl border border-slate-200">
+				<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478] block mb-1">Stiffness Index (SI)</span>
+				<div class="font-mono text-base font-bold text-[#10172b] my-2 bg-slate-50 p-2.5 rounded border border-slate-100 text-center">
+					SI = Height (m) / &Delta;T<sub>refl</sub> (s)
+				</div>
+				<p class="text-xs text-slate-500">
+					Estimates large artery pulse wave velocity by normalizing subject height over the transit time between forward and reflected waves.
+				</p>
+			</div>
+
+			<div class="bg-white p-5 rounded-xl border border-slate-200">
+				<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478] block mb-1">Reflection Index (RI)</span>
+				<div class="font-mono text-base font-bold text-[#10172b] my-2 bg-slate-50 p-2.5 rounded border border-slate-100 text-center">
+					RI = (A<sub>diastolic</sub> / A<sub>systolic</sub>) &times; 100%
+				</div>
+				<p class="text-xs text-slate-500">
+					Measures peripheral vascular tone. High RI indicates marked peripheral vasoconstriction; low RI reflects vascular relaxation.
+				</p>
+			</div>
+
+			<div class="bg-white p-5 rounded-xl border border-slate-200">
+				<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478] block mb-1">Rate Pressure Product (RPP)</span>
+				<div class="font-mono text-base font-bold text-[#10172b] my-2 bg-slate-50 p-2.5 rounded border border-slate-100 text-center">
+					RPP = Heart Rate &times; Systolic BP
+				</div>
+				<p class="text-xs text-slate-500">
+					Direct index of myocardial oxygen consumption (MVO<sub>2</sub>) and cardiac workload under differing vascular afterload.
+				</p>
+			</div>
+		</div>
+
+		<!-- Crucial Engineering Distinction Box -->
+		<div class="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-xl mb-8">
+			<h4 class="text-sm font-bold text-amber-950 mb-1 flex items-center gap-2">
+				<span>&bull;</span> Critical Engineering Insight: Why R-Pulse Interval &ne; Pure Pulse Wave Velocity (PWV)
+			</h4>
+			<p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+				Although the ECG R-wave marks ventricular depolarization and the PPG wave detects peripheral pulse arrival, their difference (R-Pulse interval) cannot be used directly as PWV. The interval incorporates the <strong>pre-ejection period (PEP, 50–80 ms)</strong> — the isovolumetric contraction time required for intraventricular pressure to exceed aortic pressure before the aortic valve leaflets open. True PWV requires differential measurement between two arterial transit points ($\Delta D / \Delta t$) or pulse contour reflection time analysis.
+			</p>
+		</div>
+
+		<!-- Lifespan Dataset Table -->
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden mb-12">
+			<div class="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+				<h3 class="text-sm font-bold text-[#10172b]">
+					Cross-Sectional Lifespan Dataset &amp; Cardiovascular Indices
+				</h3>
+				<span class="text-xs font-mono text-slate-500 font-semibold">
+					JNC VI Classification
+				</span>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-xs font-mono">
+					<thead class="bg-slate-100 text-slate-700 uppercase tracking-wider text-[11px] border-b border-slate-200">
+						<tr>
+							<th class="p-3.5">Cohort Subject</th>
+							<th class="p-3.5">Age</th>
+							<th class="p-3.5">Height</th>
+							<th class="p-3.5">Stiffness Index (SI)</th>
+							<th class="p-3.5">Reflection Index (RI)</th>
+							<th class="p-3.5">Blood Pressure</th>
+							<th class="p-3.5">Heart Rate</th>
+							<th class="p-3.5">RPP Workload</th>
+							<th class="p-3.5">BP Status</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100 text-slate-600">
+						{subjectData.map(s => (
+							<tr class="hover:bg-slate-50/80 transition-colors">
+								<td class="p-3.5 font-bold text-[#10172b] font-sans">{s.subject}</td>
+								<td class="p-3.5">{s.age}</td>
+								<td class="p-3.5">{s.height}</td>
+								<td class="p-3.5 font-bold text-[#1a4478]">{s.si}</td>
+								<td class="p-3.5 font-bold">{s.ri}</td>
+								<td class="p-3.5">{s.bp}</td>
+								<td class="p-3.5">{s.hr}</td>
+								<td class="p-3.5 font-bold text-slate-900">{s.rpp}</td>
+								<td class="p-3.5">
+									<span class={`px-2 py-0.5 rounded font-sans text-[10px] font-bold ${
+										s.class === 'Optimal' ? 'bg-emerald-100 text-emerald-800' :
+										s.class === 'Hypotensive' ? 'bg-blue-100 text-blue-800' :
+										'bg-amber-100 text-amber-800'
+									}`}>
+										{s.class}
+									</span>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Scientific Evidence Gallery: Publication Figures -->
+		<div>
+			<div class="mb-6">
+				<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Phase 4 &bull; Quantitative Evidence</span>
+				<h3 class="text-xl sm:text-2xl font-bold text-[#10172b] mt-1">
+					Experimental Figures &amp; Matplotlib Analytics
+				</h3>
+				<p class="text-xs sm:text-sm text-[#485569] mt-1">
+					Publication-ready figures generated from lab data illustrating the biophysical relationships between vascular stiffness, age progression, and myocardial demand.
+				</p>
+			</div>
+
+			<div class="space-y-8">
+				<!-- Figure 1 (Full Width Horizontal Card - Zero Blank Space) -->
+				<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+					<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+						<div class="lg:col-span-8 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 p-2">
+							<img 
+								src="/images/projects/ecg-stiffness-reflection.png" 
+								alt="Figure 1: Stiffness and Reflection Indices by Subject" 
+								class="w-full h-auto object-contain rounded-lg"
+							/>
+						</div>
+						<div class="lg:col-span-4">
+							<div class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-blue-50 text-[#1a4478] mb-2">
+								Figure 1 &bull; Discrete Cohort Comparison
+							</div>
+							<h4 class="text-base font-bold text-[#10172b] mb-2">
+								Stiffness Index (A) vs. Reflection Index (B)
+							</h4>
+							<p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+								SI demonstrates a pronounced upward trajectory with chronological age (5.61 m/s &rarr; 12.80 m/s), whereas RI exhibits non-monotonic behavior, highlighting that structural wall stiffness and real-time vasomotor tone are physiologically decoupled.
+							</p>
+							<div class="p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-500 font-mono">
+								<strong>Clinical Takeaway:</strong> Baseline vascular compliance degrades over 128% between young adulthood and the 9th decade.
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Figure 2 (Full Width Balanced Card) -->
+				<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+					<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+						<div class="lg:col-span-6 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 p-2 flex justify-center">
+							<img 
+								src="/images/projects/ecg-arterial-aging-curve.png" 
+								alt="Figure 2: Arterial Stiffness as a Function of Age" 
+								class="max-h-80 w-auto object-contain rounded-lg"
+							/>
+						</div>
+						<div class="lg:col-span-6">
+							<div class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 mb-2">
+								Figure 2 &bull; Clinical Reference Calibration
+							</div>
+							<h4 class="text-base font-bold text-[#10172b] mb-2">
+								Arterial Stiffness Trajectory Across Lifespan
+							</h4>
+							<p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+								Continuous age trajectory mapping across subjects aged 9 to 86 years. The green shaded region depicts the clinical reference interval for healthy young adults (5–6 m/s, Millasseau et al. 2002).
+							</p>
+							<p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+								Notice the accelerated compliance loss beyond the 5th decade, where medial elastin fragmentation and collagen glycation substantially accelerate large artery pulse wave velocity.
+							</p>
+							<div class="p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-500 font-mono">
+								<strong>Moens-Korteweg Formulation:</strong> <em>PWV = &radic;((E &middot; h) / (2r &middot; &rho;))</em>, directly linking Young's modulus (<em>E</em>) with observed propagation velocity.
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Figure 3 (Full Width Card) -->
+				<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+					<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+						<div class="lg:col-span-8 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 p-2">
+							<img 
+								src="/images/projects/ecg-rate-pressure-product.png" 
+								alt="Figure 3: Rate Pressure Product and Pulse Pressure" 
+								class="w-full h-auto object-contain rounded-lg"
+							/>
+						</div>
+						<div class="lg:col-span-4">
+							<div class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-50 text-amber-800 mb-2">
+								Figure 3 &bull; Hemodynamic Workload
+							</div>
+							<h4 class="text-base font-bold text-[#10172b] mb-2">
+								Myocardial Workload &amp; Pulse Pressure Escalation
+							</h4>
+							<p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+								Panel (A) confirms that the 86-year-old heart bears the heaviest workload (RPP = 8,370), driven by elevated systolic pressure against an unyielding aorta.
+							</p>
+							<p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+								Panel (B) reveals pulse pressure widening (22.5 &rarr; 47.95 mmHg) resulting directly from lost aortic Windkessel damping.
+							</p>
+							<div class="p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-500 font-mono">
+								RPP = HR &times; SBP &bull; JNC VI Standards
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Clinical Takeaways & Conclusions -->
+	<section class="py-12 border-t border-[#10172b]/10">
+		<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs">
+			<span class="text-xs font-bold uppercase tracking-wider text-[#1a4478]">Conclusions &amp; Translational Impact</span>
+			<h3 class="text-2xl font-bold text-[#10172b] mt-1 mb-4">
+				Clinical Significance in Preventative Cardiology
+			</h3>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-[#485569] leading-relaxed">
+				<div>
+					<h4 class="font-bold text-[#10172b] mb-1">Early Vascular Aging (EVA) Detection</h4>
+					<p class="text-xs sm:text-sm">
+						Digital pulse contour analysis is non-invasive, low-cost, and easily reproducible. It detects microstructural arterial remodeling long before overt hypertension or atherosclerotic plaques appear on ultrasound.
+					</p>
+				</div>
+				<div>
+					<h4 class="font-bold text-[#10172b] mb-1">Decoupled Vasomotor Tone</h4>
+					<p class="text-xs sm:text-sm">
+						Proved empirically that Reflection Index (RI) does not follow chronological age monotonically, as peripheral resistance is modulated dynamically by autonomic sympathetic tone and aerobic fitness level.
+					</p>
+				</div>
+				<div>
+					<h4 class="font-bold text-[#10172b] mb-1">Wearable Point-of-Care Translation</h4>
+					<p class="text-xs sm:text-sm">
+						Demonstrated that synchronizing optical PPG with single-lead biopotentials provides a viable framework for continuous, cuffless cardiovascular monitoring in modern smart wearables.
+					</p>
+				</div>
+			</div>
+
+			<div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-center">
+				<a 
+					href="/projects" 
+					class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors"
+				>
+					&larr; Return to All Engineering Projects
+				</a>
+			</div>
+		</div>
+	</section>
+</MainLayout>
+
+<!-- Client-side Script for Interactive Bio-Signal Oscilloscope Simulator -->
+<script is:inline>
+	const canvas = document.getElementById('ecgCanvas');
+	const ctx = canvas ? canvas.getContext('2d') : null;
+	const buttons = document.querySelectorAll('.sim-btn');
+	const rrVal = document.getElementById('sim-rr-val');
+	const latencyVal = document.getElementById('sim-latency-val');
+	const hrVal = document.getElementById('sim-hr-val');
+	const explanationEl = document.getElementById('sim-explanation');
+
+	// Simulation states configuration
+	const states = {
+		resting: {
+			hr: 71,
+			rrMs: 845,
+			latencyMs: 244,
+			ppgAmp: 0.85,
+			colorECG: '#00f2fe',
+			colorPPG: '#fbbf24',
+			explanation: '<strong class="text-cyan-400">[BASELINE NORM]:</strong> Physiological resting state. R-R = 845 ms (71 bpm). Normal ventricular depolarization initiates myocardial contraction; the systolic arterial pulse arrives at the distal phalanx ~244 ms later. Dicrotic notch clearly distinguished.'
+		},
+		cold: {
+			hr: 68,
+			rrMs: 882,
+			latencyMs: 275,
+			ppgAmp: 0.18, // Significant vasoconstriction attenuation (-92%)
+			colorECG: '#38bdf8',
+			colorPPG: '#60a5fa',
+			explanation: '<strong class="text-blue-400">[COLD PRESSOR RESPONSE]:</strong> Acute thermoregulatory sympathetic vasoconstriction. Arteriolar luminal constriction dramatically attenuates peripheral pulse amplitude (-92.6%), while increased vascular resistance prolongs transit latency to 275 ms. Note the prolonged diastolic R-R interval (882 ms).'
+		},
+		heat: {
+			hr: 86,
+			rrMs: 698,
+			latencyMs: 145,
+			ppgAmp: 1.25, // Vasodilation expansion
+			colorECG: '#f43f5e',
+			colorPPG: '#f59e0b',
+			explanation: '<strong class="text-amber-400">[HYPERTHERMIA / VASODILATION]:</strong> Local hyperthermic exposure relaxes vascular smooth muscle. Peripheral resistance drops, producing robust pulse wave amplitudes and accelerating wave propagation (latency drops to 145 ms; R-R interval compresses to 698 ms at 86 bpm).'
+		},
+		exercise: {
+			hr: 95,
+			rrMs: 631,
+			latencyMs: 190,
+			ppgAmp: 1.10,
+			colorECG: '#ec4899',
+			colorPPG: '#10b981',
+			explanation: '<strong class="text-emerald-400">[POST-EXERTION TACHYCARDIA]:</strong> Elevated cardiac output. Notice that tachycardia is achieved almost entirely by shortening electrical diastole (T-P segment), compressing the R-R period to 631 ms, whereas electrical systole (P-T interval) remains tightly conserved.'
+		}
+	};
+
+	let currentState = 'resting';
+	let animId;
+	let simTime = 0;
+	let lastTimestamp = performance.now();
+
+	// Smoothly animated target values
+	let currentHR = 71;
+	let currentLatency = 244;
+	let currentPPGAmp = 0.85;
+
+	// Switch state listener
+	buttons.forEach(btn => {
+		btn.addEventListener('click', () => {
+			const targetState = btn.getAttribute('data-state');
+			if (!targetState || !states[targetState]) return;
+			currentState = targetState;
+
+			buttons.forEach(b => {
+				b.classList.remove('active', 'bg-[#1a4478]', 'text-white', 'border-cyan-400/30');
+				b.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+			});
+			btn.classList.add('active', 'bg-[#1a4478]', 'text-white', 'border-cyan-400/30');
+			btn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+
+			const s = states[currentState];
+			if (rrVal) rrVal.textContent = `${s.rrMs} ms`;
+			if (latencyVal) latencyVal.textContent = `${s.latencyMs} ms`;
+			if (hrVal) hrVal.textContent = `${s.hr} bpm`;
+			if (explanationEl) explanationEl.innerHTML = s.explanation;
+			updateIndicators(s);
+		});
+	});
+
+	function updateIndicators(s) {
+		const ch1Indicator = document.getElementById('ch1-indicator');
+		const ch1Dot = document.getElementById('ch1-dot');
+		const ch2Indicator = document.getElementById('ch2-indicator');
+		const ch2Dot = document.getElementById('ch2-dot');
+		if (ch1Indicator) ch1Indicator.style.color = s.colorECG;
+		if (ch1Dot) ch1Dot.style.backgroundColor = s.colorECG;
+		if (ch2Indicator) ch2Indicator.style.color = s.colorPPG;
+		if (ch2Dot) ch2Dot.style.backgroundColor = s.colorPPG;
+	}
+
+	// Synthetic ECG waveform generator in absolute seconds
+	// Ventricular depolarization (R peak) centered at t = 0.20s
+	function getECGVoltage(cycleT) {
+		let val = 0;
+		// P wave: atrial depolarization (0.04s - 0.08s)
+		const tP = 0.06;
+		val += 0.16 * Math.exp(-Math.pow((cycleT - tP) / 0.024, 2));
+
+		// Q wave: septal depolarization (0.16s - 0.175s)
+		const tQ = 0.165;
+		val -= 0.15 * Math.exp(-Math.pow((cycleT - tQ) / 0.010, 2));
+
+		// R peak: ventricular depolarization (0.20s) -> 1.05 mV
+		const tR = 0.20;
+		val += 1.05 * Math.exp(-Math.pow((cycleT - tR) / 0.016, 2));
+
+		// S wave: late ventricular depolarization (0.235s)
+		const tS = 0.235;
+		val -= 0.26 * Math.exp(-Math.pow((cycleT - tS) / 0.012, 2));
+
+		// T wave: ventricular repolarization (0.38s)
+		const tT = 0.38;
+		val += 0.32 * Math.exp(-Math.pow((cycleT - tT) / 0.045, 2));
+
+		// Diastolic isoelectric line: from 0.46s to T_period it remains flat 0.00 mV
+		return val;
+	}
+
+	// Synthetic PPG pulse generator (Digital Volume Pulse in Volts)
+	function getPPGVoltage(cycleT, latencyMs, ppgAmp, T) {
+		const pulseOnset = 0.20 + (latencyMs / 1000);
+		const ppgT = (((cycleT - pulseOnset) % T) + T) % T;
+		let val = 0;
+
+		if (ppgT >= 0 && ppgT <= 0.55) {
+			// Systolic percussion wave (rapid ascending limb)
+			const systolic = Math.sin(ppgT * Math.PI / 0.20) * Math.exp(-ppgT * 2.8);
+			// Dicrotic notch reflection wave
+			const dicrotic = ppgT > 0.18 ? 0.32 * Math.sin((ppgT - 0.18) * Math.PI / 0.16) * Math.exp(-(ppgT - 0.18) * 3.5) : 0;
+			val = Math.max(0, systolic + dicrotic) * ppgAmp;
+		}
+		return val;
+	}
+
+	function render(now) {
+		if (!canvas || !ctx) return;
+		const dt = (now - lastTimestamp) / 1000;
+		lastTimestamp = now;
+
+		// Smooth interpolation towards selected state
+		const target = states[currentState];
+		currentHR += (target.hr - currentHR) * 0.06;
+		currentLatency += (target.latencyMs - currentLatency) * 0.06;
+		currentPPGAmp += (target.ppgAmp - currentPPGAmp) * 0.06;
+
+		const T = 60 / currentHR; // Dynamic cardiac period in seconds (RR interval)
+
+		const width = canvas.width;
+		const height = canvas.height;
+
+		// Background: Clinical digital phosphor monitor
+		ctx.fillStyle = '#060b14';
+		ctx.fillRect(0, 0, width, height);
+
+		// Layout coordinates
+		const leftMargin = 64;   // Space for Y-axis scale and tick labels
+		const rightMargin = 16;
+		const topMargin = 32;
+		const bottomMargin = 28;
+		const plotWidth = width - leftMargin - rightMargin;
+		const plotHeight = height - topMargin - bottomMargin;
+
+		// Display window: 4.0 seconds visible across the plot area
+		const timeWindow = 4.0;
+		const pxPerSec = plotWidth / timeWindow;
+
+		// -------------------------------------------------------------
+		// 1. Draw Calibrated Medical Coordinate Grid
+		// -------------------------------------------------------------
+		// Minor grid: 40 ms (0.04s) - standard ECG paper small square
+		ctx.strokeStyle = '#0d1726';
+		ctx.lineWidth = 0.8;
+		const minorStepSec = 0.04;
+		const minorStepPx = minorStepSec * pxPerSec;
+		for (let x = leftMargin; x <= width - rightMargin; x += minorStepPx) {
+			ctx.beginPath();
+			ctx.moveTo(x, topMargin);
+			ctx.lineTo(x, height - bottomMargin);
+			ctx.stroke();
+		}
+
+		// Major grid: 200 ms (0.20s) - standard ECG paper large square
+		ctx.strokeStyle = '#1a2942';
+		ctx.lineWidth = 1.0;
+		const majorStepSec = 0.20;
+		const majorStepPx = majorStepSec * pxPerSec;
+		for (let x = leftMargin; x <= width - rightMargin; x += majorStepPx) {
+			ctx.beginPath();
+			ctx.moveTo(x, topMargin);
+			ctx.lineTo(x, height - bottomMargin);
+			ctx.stroke();
+		}
+
+		// Horizontal grid lines across plot
+		for (let y = topMargin; y <= height - bottomMargin; y += 22) {
+			ctx.strokeStyle = '#0e1a2d';
+			ctx.beginPath();
+			ctx.moveTo(leftMargin, y);
+			ctx.lineTo(width - rightMargin, y);
+			ctx.stroke();
+		}
+
+		// Divider between CH1 (ECG) and CH2 (PPG)
+		const midY = topMargin + (plotHeight * 0.50);
+		ctx.strokeStyle = '#334155';
+		ctx.setLineDash([4, 4]);
+		ctx.beginPath();
+		ctx.moveTo(leftMargin, midY);
+		ctx.lineTo(width - rightMargin, midY);
+		ctx.stroke();
+		ctx.setLineDash([]);
+
+		// -------------------------------------------------------------
+		// 2. Draw Y-Axes, Voltage Scales & Calibration Indicators
+		// -------------------------------------------------------------
+		// Vertical axis boundary line
+		ctx.strokeStyle = '#475569';
+		ctx.lineWidth = 1.2;
+		ctx.beginPath();
+		ctx.moveTo(leftMargin, topMargin);
+		ctx.lineTo(leftMargin, height - bottomMargin);
+		ctx.stroke();
+
+		// CH1: ECG Calibration & Ticks (Base at midY - 35, 1.0 mV = 60 px)
+		const ecgBaseline = midY - 32;
+		const ecgScale = 60; // 60 px = 1.0 mV
+
+		ctx.font = '10px "JetBrains Mono", monospace';
+		ctx.textAlign = 'right';
+		ctx.textBaseline = 'middle';
+
+		// ECG Ticks: +1.0 mV, +0.5 mV, 0.0 mV, -0.5 mV
+		const ecgTicks = [
+			{ v: 1.0, label: '+1.0 mV', color: target.colorECG },
+			{ v: 0.5, label: '+0.5 mV', color: '#94a3b8' },
+			{ v: 0.0, label: ' 0.0 mV', color: '#cbd5e1' },
+			{ v: -0.5, label: '-0.5 mV', color: '#64748b' }
+		];
+
+		ecgTicks.forEach(t => {
+			const yPos = ecgBaseline - (t.v * ecgScale);
+			ctx.fillStyle = t.color;
+			ctx.fillText(t.label, leftMargin - 6, yPos);
+			// Axis tick mark
+			ctx.strokeStyle = '#475569';
+			ctx.beginPath();
+			ctx.moveTo(leftMargin - 4, yPos);
+			ctx.lineTo(leftMargin, yPos);
+			ctx.stroke();
+		});
+
+		// Standard ECG 1.0 mV Calibration Pulse on Margin (10 mm = 1 mV, 200 ms wide)
+		ctx.strokeStyle = target.colorECG;
+		ctx.lineWidth = 1.5;
+		ctx.beginPath();
+		ctx.moveTo(12, ecgBaseline);
+		ctx.lineTo(16, ecgBaseline);
+		ctx.lineTo(16, ecgBaseline - ecgScale);
+		ctx.lineTo(26, ecgBaseline - ecgScale);
+		ctx.lineTo(26, ecgBaseline);
+		ctx.lineTo(30, ecgBaseline);
+		ctx.stroke();
+		ctx.fillStyle = target.colorECG;
+		ctx.fillText('1 mV', 24, ecgBaseline - ecgScale - 8);
+
+		// CH2: PPG Calibration & Ticks (Base at height - bottomMargin - 18, 1.0 V = 80 px)
+		const ppgBaseline = height - bottomMargin - 20;
+		const ppgScale = 75; // 75 px = 1.0 V
+
+		const ppgTicks = [
+			{ v: 1.0, label: '+1.0 V', color: target.colorPPG },
+			{ v: 0.5, label: '+0.5 V', color: '#94a3b8' },
+			{ v: 0.0, label: ' 0.0 V', color: '#cbd5e1' }
+		];
+
+		ppgTicks.forEach(t => {
+			const yPos = ppgBaseline - (t.v * ppgScale);
+			ctx.fillStyle = t.color;
+			ctx.fillText(t.label, leftMargin - 6, yPos);
+			// Axis tick mark
+			ctx.strokeStyle = '#475569';
+			ctx.beginPath();
+			ctx.moveTo(leftMargin - 4, yPos);
+			ctx.lineTo(leftMargin, yPos);
+			ctx.stroke();
+		});
+
+		// -------------------------------------------------------------
+		// 3. Draw Bottom Horizontal Time Axis (Seconds)
+		// -------------------------------------------------------------
+		const timeAxisY = height - bottomMargin;
+		ctx.strokeStyle = '#475569';
+		ctx.lineWidth = 1.2;
+		ctx.beginPath();
+		ctx.moveTo(leftMargin, timeAxisY);
+		ctx.lineTo(width - rightMargin, timeAxisY);
+		ctx.stroke();
+
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+
+		// Time tick marks every 0.5 seconds
+		for (let sec = 0.0; sec <= timeWindow; sec += 0.5) {
+			const xPos = leftMargin + (sec * pxPerSec);
+			ctx.strokeStyle = '#64748b';
+			ctx.beginPath();
+			ctx.moveTo(xPos, timeAxisY);
+			ctx.lineTo(xPos, timeAxisY + 5);
+			ctx.stroke();
+
+			ctx.fillStyle = '#94a3b8';
+			ctx.font = '10px "JetBrains Mono", monospace';
+			ctx.fillText(`${sec.toFixed(1)}s`, xPos, timeAxisY + 7);
+		}
+
+		// Centered Time Axis Caption
+		ctx.textAlign = 'left';
+		ctx.fillStyle = '#64748b';
+		ctx.fillText('Horizontal Time Scale (25 mm/s sweep • 1 div = 0.20 s)', leftMargin + 8, topMargin - 18);
+
+		// Dynamic Calibration Indicator in Right Corner
+		ctx.textAlign = 'right';
+		ctx.fillStyle = '#38bdf8';
+		ctx.fillText(`RR = ${Math.round(T * 1000)} ms • HR = ${Math.round(currentHR)} bpm`, width - rightMargin, topMargin - 18);
+
+		// -------------------------------------------------------------
+		// 4. Render CH1: ECG Lead II Waveform (Dynamic Period T)
+		// -------------------------------------------------------------
+		ctx.strokeStyle = target.colorECG;
+		ctx.lineWidth = 2.2;
+		ctx.shadowColor = target.colorECG;
+		ctx.shadowBlur = 7;
+		ctx.beginPath();
+
+		for (let x = leftMargin; x <= width - rightMargin; x++) {
+			const tAbs = ((x - leftMargin) / pxPerSec) - simTime;
+			const cycleT = ((tAbs % T) + T) % T; // Position within cardiac period [0, T)
+			const ecgVoltage = getECGVoltage(cycleT);
+			const y = ecgBaseline - (ecgVoltage * ecgScale);
+
+			if (x === leftMargin) ctx.moveTo(x, y);
+			else ctx.lineTo(x, y);
+		}
+		ctx.stroke();
+
+		// -------------------------------------------------------------
+		// 5. Render CH2: PPG Finger Pulse Waveform (Dynamic Latency & Period)
+		// -------------------------------------------------------------
+		ctx.strokeStyle = target.colorPPG;
+		ctx.lineWidth = 2.4;
+		ctx.shadowColor = target.colorPPG;
+		ctx.shadowBlur = 7;
+		ctx.beginPath();
+
+		for (let x = leftMargin; x <= width - rightMargin; x++) {
+			const tAbs = ((x - leftMargin) / pxPerSec) - simTime;
+			const cycleT = ((tAbs % T) + T) % T;
+			const ppgVoltage = getPPGVoltage(cycleT, currentLatency, currentPPGAmp, T);
+			const y = ppgBaseline - (ppgVoltage * ppgScale);
+
+			if (x === leftMargin) ctx.moveTo(x, y);
+			else ctx.lineTo(x, y);
+		}
+		ctx.stroke();
+
+		ctx.shadowBlur = 0; // Reset glow
+
+		// Advance simulation time (real-time sweep calibrated to 1 sec / sec)
+		simTime += 0.007;
+
+		animId = requestAnimationFrame(render);
+	}
+
+	function resize() {
+		if (!canvas) return;
+		const rect = canvas.getBoundingClientRect();
+		if (rect.width > 0) {
+			const dpr = window.devicePixelRatio || 1;
+			canvas.width = Math.round(rect.width * dpr);
+			canvas.height = Math.round(rect.height * dpr);
+		}
+	}
+
+	window.addEventListener('resize', resize);
+	resize();
+	animId = requestAnimationFrame(render);
+</script>

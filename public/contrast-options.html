@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Opciones de Color de Contraste (Hover & Acciones)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f2eee6; }
+  </style>
+</head>
+<body class="p-8 text-[#10172b]">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-extrabold text-[#10172b]">Opciones de Color de Hover / Acción</h1>
+      <p class="text-sm text-[#485569] mt-2">Buscamos un color con <strong>mucho más contraste y presencia</strong> frente al blanco y frente al fondo crema, manteniendo la sobriedad profesional.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- OPCIÓN 1: Marrón Espresso / Café Profundo -->
+      <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background-color: #4a2c11;"></span>
+            <div>
+              <h3 class="font-bold text-base text-[#10172b]">1. Marrón Café / Espresso</h3>
+              <p class="text-xs text-[#485569] font-mono">#4a2c11</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-100 text-amber-900 rounded">Marrón Intenso</span>
+        </div>
+        <p class="text-xs text-[#485569] mb-4">Un marrón oscuro puro (tipo café o cuero envejecido). Muy elegante, con un contraste altísimo con el blanco de las tarjetas y el fondo crema.</p>
+        
+        <!-- Previsualización interactiva -->
+        <div class="p-4 rounded-xl bg-[#f2eee6] flex items-center justify-between gap-4">
+          <a href="#" class="text-xs font-bold text-[#10172b] transition-colors" style="--hvr: #4a2c11;" onmouseover="this.style.color='#4a2c11'" onmouseout="this.style.color='#10172b'">Enlace de texto &rarr;</a>
+          <button class="px-5 py-2 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all" style="background-color: #10172b;" onmouseover="this.style.backgroundColor='#4a2c11'" onmouseout="this.style.backgroundColor='#10172b'">
+            Hover botón
+          </button>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 2: Marrón Chocolate Cálido -->
+      <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background-color: #5c3417;"></span>
+            <div>
+              <h3 class="font-bold text-base text-[#10172b]">2. Marrón Chocolate Cálido</h3>
+              <p class="text-xs text-[#485569] font-mono">#5c3417</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-100 text-amber-900 rounded">Marrón Clásico</span>
+        </div>
+        <p class="text-xs text-[#485569] mb-4">Tono madera nogal / chocolate. Mantiene matices cobrizos pero mucho más profundo y contrastado que el anterior canela.</p>
+        
+        <!-- Previsualización interactiva -->
+        <div class="p-4 rounded-xl bg-[#f2eee6] flex items-center justify-between gap-4">
+          <a href="#" class="text-xs font-bold text-[#10172b] transition-colors" onmouseover="this.style.color='#5c3417'" onmouseout="this.style.color='#10172b'">Enlace de texto &rarr;</a>
+          <button class="px-5 py-2 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all" style="background-color: #10172b;" onmouseover="this.style.backgroundColor='#5c3417'" onmouseout="this.style.backgroundColor='#10172b'">
+            Hover botón
+          </button>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 3: Terracota Oscuro / Teja Profunda -->
+      <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background-color: #832b1a;"></span>
+            <div>
+              <h3 class="font-bold text-base text-[#10172b]">3. Terracota Rojizo Oscuro</h3>
+              <p class="text-xs text-[#485569] font-mono">#832b1a</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-1 bg-red-100 text-red-900 rounded">Cálido Orgánico</span>
+        </div>
+        <p class="text-xs text-[#485569] mb-4">Inspirado en la arcilla cocida y tonos tierra rojizos. El contraste con el blanco es contundente y aporta dinamismo sin estridencias.</p>
+        
+        <!-- Previsualización interactiva -->
+        <div class="p-4 rounded-xl bg-[#f2eee6] flex items-center justify-between gap-4">
+          <a href="#" class="text-xs font-bold text-[#10172b] transition-colors" onmouseover="this.style.color='#832b1a'" onmouseout="this.style.color='#10172b'">Enlace de texto &rarr;</a>
+          <button class="px-5 py-2 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all" style="background-color: #10172b;" onmouseover="this.style.backgroundColor='#832b1a'" onmouseout="this.style.backgroundColor='#10172b'">
+            Hover botón
+          </button>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 4: Verde Bosque Profundo / Dark Spruce -->
+      <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background-color: #194336;"></span>
+            <div>
+              <h3 class="font-bold text-base text-[#10172b]">4. Verde Bosque Profundo</h3>
+              <p class="text-xs text-[#485569] font-mono">#194336</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-1 bg-emerald-100 text-emerald-900 rounded">Natural & Sobrio</span>
+        </div>
+        <p class="text-xs text-[#485569] mb-4">Un verde oscuro botánico. Contrasta de maravilla con el blanco y complementa a la perfección el fondo crema y el azul marino.</p>
+        
+        <!-- Previsualización interactiva -->
+        <div class="p-4 rounded-xl bg-[#f2eee6] flex items-center justify-between gap-4">
+          <a href="#" class="text-xs font-bold text-[#10172b] transition-colors" onmouseover="this.style.color='#194336'" onmouseout="this.style.color='#10172b'">Enlace de texto &rarr;</a>
+          <button class="px-5 py-2 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all" style="background-color: #10172b;" onmouseover="this.style.backgroundColor='#194336'" onmouseout="this.style.backgroundColor='#10172b'">
+            Hover botón
+          </button>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 5: Burdeos Oscuro / Borgoña -->
+      <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background-color: #5c1825;"></span>
+            <div>
+              <h3 class="font-bold text-base text-[#10172b]">5. Borgoña / Vino Tinto</h3>
+              <p class="text-xs text-[#485569] font-mono">#5c1825</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-1 bg-rose-100 text-rose-900 rounded">Elegante & Nítido</span>
+        </div>
+        <p class="text-xs text-[#485569] mb-4">Tono vino oscuro. Máximo contraste con el blanco, se percibe muy nítido y prémium en tipografías y botones.</p>
+        
+        <!-- Previsualización interactiva -->
+        <div class="p-4 rounded-xl bg-[#f2eee6] flex items-center justify-between gap-4">
+          <a href="#" class="text-xs font-bold text-[#10172b] transition-colors" onmouseover="this.style.color='#5c1825'" onmouseout="this.style.color='#10172b'">Enlace de texto &rarr;</a>
+          <button class="px-5 py-2 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all" style="background-color: #10172b;" onmouseover="this.style.backgroundColor='#5c1825'" onmouseout="this.style.backgroundColor='#10172b'">
+            Hover botón
+          </button>
+        </div>
+      </div>
+
+      <!-- OPCIÓN 6: Azul Cobalto Profundo / Índigo -->
+      <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background-color: #1a4478;"></span>
+            <div>
+              <h3 class="font-bold text-base text-[#10172b]">6. Azul Océano / Índigo Profundo</h3>
+              <p class="text-xs text-[#485569] font-mono">#1a4478</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-1 bg-blue-100 text-blue-900 rounded">Monocromático Vivo</span>
+        </div>
+        <p class="text-xs text-[#485569] mb-4">Un escalón más luminoso y saturado que el azul marino base (`#10172b`), pero con mucho cuerpo para no verse eléctrico.</p>
+        
+        <!-- Previsualización interactiva -->
+        <div class="p-4 rounded-xl bg-[#f2eee6] flex items-center justify-between gap-4">
+          <a href="#" class="text-xs font-bold text-[#10172b] transition-colors" onmouseover="this.style.color='#1a4478'" onmouseout="this.style.color='#10172b'">Enlace de texto &rarr;</a>
+          <button class="px-5 py-2 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all" style="background-color: #10172b;" onmouseover="this.style.backgroundColor='#1a4478'" onmouseout="this.style.backgroundColor='#10172b'">
+            Hover botón
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

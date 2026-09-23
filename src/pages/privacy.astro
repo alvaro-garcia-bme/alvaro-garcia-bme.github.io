@@ -1,0 +1,82 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Privacy & Legal Notice | Álvaro García Casas">
+	<section class="py-12 sm:py-16 max-w-3xl mx-auto px-4">
+		<!-- Header -->
+		<div class="mb-10 pb-6 border-b border-[#10172b]/10">
+			<a 
+				href="/" 
+				class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1a4478] hover:text-[#10172b] mb-4 transition-colors font-mono"
+			>
+				&larr; Back to Home
+			</a>
+			<h1 class="text-3xl sm:text-4xl font-extrabold text-[#10172b] tracking-tight">
+				Legal Notice & Privacy Policy
+			</h1>
+			<p class="mt-2 text-sm text-[#485569] font-mono">
+				Last updated: September 2026 • Compliant with EU GDPR & Spanish LSSI-CE
+			</p>
+		</div>
+
+		<!-- Content Blocks -->
+		<div class="space-y-8 text-sm sm:text-base text-[#485569] leading-relaxed">
+			<!-- Section 1: Identity -->
+			<div class="bg-white p-6 rounded-2xl border border-[#10172b]/10 shadow-xs">
+				<h2 class="text-lg font-bold text-[#10172b] mb-2">1. Site Ownership & Identification</h2>
+				<p>
+					This website (<strong class="text-[#10172b]">alvarogarcia.me</strong>) is a personal, professional portfolio owned and maintained by <strong class="text-[#10172b]">Álvaro García Casas</strong>, Biomedical Engineer based in Madrid, Spain.
+				</p>
+				<p class="mt-2">
+					Direct Contact Email: <a href="mailto:alvaro.garcia.bme@gmail.com" class="text-[#1a4478] font-semibold underline underline-offset-2">alvaro.garcia.bme@gmail.com</a>
+				</p>
+			</div>
+
+			<!-- Section 2: Cookies & Tracking -->
+			<div class="bg-white p-6 rounded-2xl border border-[#10172b]/10 shadow-xs">
+				<h2 class="text-lg font-bold text-[#10172b] mb-2">2. Zero Cookies & Zero Tracking Policy</h2>
+				<p>
+					We respect your digital privacy. This website is entirely static and:
+				</p>
+				<ul class="list-disc pl-5 mt-2 space-y-1">
+					<li>Does <strong class="text-[#10172b]">NOT use cookies</strong> (neither first-party nor third-party cookies).</li>
+					<li>Does <strong class="text-[#10172b]">NOT use tracking scripts</strong>, advertising pixels, or invasive browser fingerprinting.</li>
+					<li>Does <strong class="text-[#10172b]">NOT sell, rent, or trade</strong> any visitor telemetry or personal data.</li>
+				</ul>
+				<p class="mt-2 text-xs text-[#485569]/80 italic">
+					In accordance with the EU ePrivacy Directive and GDPR guidelines, no consent banner is required since no non-essential cookies or tracking mechanisms are stored on your device.
+				</p>
+			</div>
+
+			<!-- Section 3: Data Processing -->
+			<div class="bg-white p-6 rounded-2xl border border-[#10172b]/10 shadow-xs">
+				<h2 class="text-lg font-bold text-[#10172b] mb-2">3. Communications & Contact Data</h2>
+				<p>
+					If you choose to contact me via email (<code class="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded">mailto:</code>), any personal information provided (such as your name, email address, or phone number) will be processed solely to reply to your inquiry, recruitment opportunity, or collaboration proposal.
+				</p>
+				<p class="mt-2">
+					You have the right to access, rectify, or request the deletion of your communications at any time by sending a message to <a href="mailto:alvaro.garcia.bme@gmail.com" class="text-[#1a4478] font-semibold">alvaro.garcia.bme@gmail.com</a>.
+				</p>
+			</div>
+
+			<!-- Section 4: Intellectual Property -->
+			<div class="bg-white p-6 rounded-2xl border border-[#10172b]/10 shadow-xs">
+				<h2 class="text-lg font-bold text-[#10172b] mb-2">4. Intellectual Property</h2>
+				<p>
+					All research, project documentation, code implementations, 3D designs, diagrams, and written materials presented on this site are the intellectual property of Álvaro García Casas and/or their respective academic and institutional collaborators (UC3M, Georgia Tech, research laboratories), unless explicitly credited otherwise.
+				</p>
+			</div>
+		</div>
+
+		<!-- Footer CTA -->
+		<div class="mt-10 pt-6 border-t border-[#10172b]/10 text-center">
+			<a 
+				href="/" 
+				class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#10172b] text-white font-semibold text-sm hover:bg-[#1a4478] transition-all"
+			>
+				Return to Portfolio
+			</a>
+		</div>
+	</section>
+</MainLayout>

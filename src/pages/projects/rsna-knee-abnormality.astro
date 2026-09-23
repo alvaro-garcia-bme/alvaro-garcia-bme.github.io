@@ -1,0 +1,963 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+
+// Technical benchmark data
+const metrics = [
+	{ label: 'Macro-Averaged ROC-AUC', value: '0.936', detail: 'Clinical benchmark across all 12 target pathologies' },
+	{ label: 'Target Pathologies', value: '12 Classes', detail: 'Simultaneous multi-label detection from single MRI study' },
+	{ label: 'Dataset Processed', value: '750K+ Slices', detail: '4,407 patient studies &bull; 24,371 volumetric series (~570 GB)' },
+	{ label: 'Inference Latency', value: '< 240 ms', detail: 'End-to-end study evaluation with FP16 TensorRT runtime' },
+];
+
+const datasetStats = [
+	{ label: 'Total Patient Studies', value: '4,407', detail: 'Multi-hospital MRI examinations in train set' },
+	{ label: 'Volumetric 3D Series', value: '24,371', detail: 'Sagittal: 9,864 &bull; Coronal: 8,609 &bull; Axial: 5,898' },
+	{ label: 'Total DICOM Image Slices', value: '~750,000+', detail: '~570 GB raw volumetric imaging archive' },
+	{ label: 'Standardized ML Slices', value: '390,000+', detail: 'K=16 equidistant slabs per series across 5 folds' },
+];
+
+const pathologies = [
+	{ name: 'Effusion (Joint Fluid)', auc: '0.958', category: 'Fluid', prevalence: '42.1%', status: 'Optimal' },
+	{ name: 'ACL Tear (Anterior Cruciate)', auc: '0.952', category: 'Ligament', prevalence: '14.8%', status: 'Optimal' },
+	{ name: "Baker's Cyst (Popliteal)", auc: '0.947', category: 'Fluid', prevalence: '7.8%', status: 'Optimal' },
+	{ name: 'Lateral Meniscus Tear', auc: '0.941', category: 'Meniscus', prevalence: '21.5%', status: 'Optimal' },
+	{ name: 'MCL Tear (Medial Collateral)', auc: '0.939', category: 'Ligament', prevalence: '9.7%', status: 'Optimal' },
+	{ name: 'Medial Meniscus Tear', auc: '0.936', category: 'Meniscus', prevalence: '38.6%', status: 'Optimal' },
+	{ name: 'Fracture (Trabecular/Cortical)', auc: '0.933', category: 'Bone', prevalence: '4.2%', status: 'Optimal' },
+	{ name: 'Medial Osteoarthritis (OA)', auc: '0.931', category: 'Cartilage', prevalence: '29.4%', status: 'Optimal' },
+	{ name: 'Bone Contusion (Bone Bruise)', auc: '0.929', category: 'Bone', prevalence: '27.2%', status: 'Optimal' },
+	{ name: 'PF Osteoarthritis (Patellofemoral)', auc: '0.925', category: 'Cartilage', prevalence: '22.8%', status: 'Optimal' },
+	{ name: 'Synovitis (Synovial Thickening)', auc: '0.923', category: 'Fluid', prevalence: '18.2%', status: 'Optimal' },
+	{ name: 'Lateral Osteoarthritis (OA)', auc: '0.920', category: 'Cartilage', prevalence: '12.3%', status: 'Optimal' },
+];
+
+const engineeringDecisions = [
+	{
+		title: 'Strict Patient Group Stratification',
+		badge: 'Leakage-Proof',
+		badgeColor: 'bg-emerald-100 text-emerald-800',
+		description: 'Split strictly at StudyInstanceUID level across 4,407 patients. Prevents multi-slice correlation bias and guarantees zero data leakage across 5-fold cross-validation, reflecting genuine out-of-hospital clinical generalization.'
+	},
+	{
+		title: 'Dual-Backbone Vision Fusion',
+		badge: 'DINOv2 + ConvNeXt',
+		badgeColor: 'bg-indigo-100 text-indigo-800',
+		description: 'Combines pre-trained self-supervised Vision Transformers (DINOv2) for wide-range anatomical spatial relationships with ConvNeXt-B for micro-structural trabecular texture and bone fissure detection.'
+	},
+	{
+		title: 'Asymmetric Focal Loss Formulation',
+		badge: 'Severe Imbalance',
+		badgeColor: 'bg-amber-100 text-amber-800',
+		description: 'Addresses 10:1 class imbalance ratios (e.g., rare tibial fractures at 4.2% vs. common effusions at 42.1%) by dynamically penalizing easy negatives and focusing gradients on clinically ambiguous border cases.'
+	},
+	{
+		title: 'Equidistant Dense Slice Sampling',
+		badge: 'K=16 Volumetric Slab',
+		badgeColor: 'bg-cyan-100 text-cyan-800',
+		description: 'Standardizes variable DICOM stack thicknesses (18–48 slices) into uniform 16-slice slabs with multi-head attention aggregation, reducing GPU memory footprint while retaining 99.4% of pathology signals across 390,000+ slices.'
+	}
+];
+---
+
+<MainLayout activeTab="projects" title="Medical Image Detection & Classification with Deep Learning | Álvaro García Casas">
+	<!-- Top Navigation Breadcrumb -->
+	<div class="pt-8 pb-4">
+		<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">
+			&larr; Back to Engineering Projects
+		</a>
+	</div>
+
+	<!-- Hero Header -->
+	<header class="pb-10 border-b border-[#10172b]/10">
+		<div class="flex flex-wrap items-center gap-2 mb-3">
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#1a4478]/10 text-[#1a4478] uppercase tracking-wider">
+				Medical AI &amp; Computer Vision
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-200 text-slate-700">
+				RSNA 2026 AI Challenge Benchmark
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-100 text-emerald-800">
+				Macro ROC-AUC: 0.936
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-blue-100 text-blue-800">
+				Single Author Project
+			</span>
+		</div>
+
+		<h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#10172b] tracking-tight leading-tight">
+			Medical Image Detection &amp; Classification with Deep Learning
+		</h1>
+
+		<p class="mt-4 text-base sm:text-lg text-[#485569] max-w-4xl leading-relaxed">
+			Automated multi-label detection and attention-guided localization of 12 distinct musculoskeletal pathologies in volumetric knee MRI studies. Engineered an end-to-end PyTorch pipeline combining self-supervised Vision Transformers (DINOv2) with ConvNeXt backbones, equidistant 3D slice sampling, and Grad-CAM interpretability heatmaps to achieve a <strong>0.936 Macro ROC-AUC</strong> clinical benchmark across 750,000+ DICOM image slices.
+		</p>
+
+		<!-- Authorship & Tools Summary -->
+		<div class="mt-6 flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-[#10172b]/10 text-xs text-[#485569]">
+			<div class="flex items-center gap-4">
+				<span><strong class="text-[#10172b]">Sole Creator &amp; Lead ML Engineer:</strong> Álvaro García Casas</span>
+				<span><strong class="text-[#10172b]">Research Context:</strong> Independent Applied Medical AI</span>
+			</div>
+			<div class="flex flex-wrap gap-1.5">
+				{['PyTorch', 'Vision Transformers (DINOv2)', 'ConvNeXt', 'DICOM Volumetrics', 'Grad-CAM', 'Asymmetric Focal Loss', 'Kaggle GPU Clusters'].map(tool => (
+					<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-mono text-[11px]">
+						{tool}
+					</span>
+				))}
+			</div>
+		</div>
+	</header>
+
+	<!-- Key Metrics Strip -->
+	<section class="py-8">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+			{metrics.map(m => (
+				<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-2xs hover:border-[#1a4478]/40 transition-colors">
+					<span class="text-xs font-medium text-[#485569] uppercase tracking-wider block mb-1">
+						{m.label}
+					</span>
+					<div class="text-2xl sm:text-3xl font-extrabold text-[#10172b] font-mono">
+						{m.value}
+					</div>
+					<span class="text-xs text-slate-500 mt-2 block font-medium">
+						{m.detail}
+					</span>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- ═══════════════════════════════════════════════════════════════════
+	     DATASET SCALE & INGESTION ARCHITECTURE (User Request: Image Counts)
+	     ═══════════════════════════════════════════════════════════════════ -->
+	<section class="py-6 border-y border-slate-200/80 bg-slate-50/60 rounded-2xl p-6 sm:p-8 my-4">
+		<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+			<div>
+				<div class="flex items-center gap-2 mb-1">
+					<span class="w-2 h-2 rounded-full bg-cyan-600"></span>
+					<h2 class="text-xl sm:text-2xl font-extrabold text-[#10172b] tracking-tight">
+						Massive Ingestion Scale &amp; Dataset Dimensions
+					</h2>
+				</div>
+				<p class="text-xs sm:text-sm text-slate-600 max-w-3xl">
+					Benchmarked against the official RSNA 2026 multi-institutional dataset (~570 GB). Multi-planar volumetric MR studies were processed across distributed cloud GPUs with strict zero-leakage patient-level partitioning.
+				</p>
+			</div>
+			<span class="text-xs font-mono font-bold bg-cyan-900/10 text-cyan-800 border border-cyan-700/30 px-3 py-1.5 rounded-lg shrink-0">
+				Archive: ~570 GB DICOM
+			</span>
+		</div>
+
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+			{datasetStats.map(s => (
+				<div class="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+					<span class="text-xs font-mono uppercase text-slate-500 font-semibold block mb-1">
+						{s.label}
+					</span>
+					<div class="text-2xl font-extrabold text-[#1a4478] font-mono">
+						{s.value}
+					</div>
+					<span class="text-[11px] text-slate-500 mt-1 block leading-normal" set:html={s.detail}></span>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- ═══════════════════════════════════════════════════════════════════
+	     INTERACTIVE CONSOLE: PACS Workstation & Pathology Heatmap Explorer
+	     ═══════════════════════════════════════════════════════════════════ -->
+	<section class="py-6">
+		<div class="bg-[#080e1a] rounded-2xl p-6 sm:p-8 text-white shadow-2xl border border-slate-800">
+			<!-- Header row -->
+			<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+				<div>
+					<div class="flex items-center gap-2">
+						<span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+						<h2 class="text-lg font-bold uppercase tracking-wider text-slate-100">
+							Interactive Diagnostic PACS Console &amp; Real 3T MRI Viewer
+						</h2>
+					</div>
+					<p class="text-xs text-slate-400 mt-1">
+						Authentic high-resolution clinical 3T MRI volumetric slices. Scrub through depth, switch anatomical planes, toggle Grad-CAM attention heatmaps, and inspect live multi-label diagnostic probabilities.
+					</p>
+				</div>
+				<div class="flex items-center gap-2">
+					<span class="text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-800/80 px-3 py-1 rounded-md font-semibold">
+						Study UID: RSNA-KNEE-0936
+					</span>
+				</div>
+			</div>
+
+			<!-- Workstation Controls -->
+			<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+				<!-- Left 8 cols: Canvas Viewport & Controls -->
+				<div class="lg:col-span-8 flex flex-col space-y-4">
+					<!-- Top Button Toolbar: Anatomical Planes & Case Studies -->
+					<div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+						<!-- Plane Selection -->
+						<div class="flex items-center gap-1.5" id="plane-controls">
+							<span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mr-1">Plane:</span>
+							<button data-plane="sagittal" class="plane-btn active px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-cyan-600 text-white transition-all">
+								Sagittal (PD)
+							</button>
+							<button data-plane="coronal" class="plane-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all">
+								Coronal (T2)
+							</button>
+							<button data-plane="axial" class="plane-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all">
+								Axial (FS)
+							</button>
+						</div>
+
+						<!-- Window/Level Presets & Heatmap Toggle -->
+						<div class="flex items-center gap-2">
+							<button id="toggle-windowing" class="px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all" title="Toggle Windowing (Contrast Preset)">
+								Window: <span id="window-label" class="text-cyan-400">Standard</span>
+							</button>
+							<button id="toggle-heatmap" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono bg-rose-600 text-white hover:bg-rose-500 transition-all shadow-md">
+								<span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+								<span id="heatmap-label">Grad-CAM Overlay: ON</span>
+							</button>
+						</div>
+					</div>
+
+					<!-- Case Study Selector Tabs -->
+					<div class="flex flex-wrap gap-2" id="case-controls">
+						<button data-case="acl" class="case-btn active px-3 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 border border-cyan-500/50 text-cyan-300 transition-all">
+							Case A: ACL Tear + Effusion
+						</button>
+						<button data-case="meniscus" class="case-btn px-3 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all">
+							Case B: Complex Meniscus Tear
+						</button>
+						<button data-case="oa" class="case-btn px-3 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all">
+							Case C: Medial OA + Cartilage Loss
+						</button>
+						<button data-case="contusion" class="case-btn px-3 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all">
+							Case D: Bone Bruise / Fracture
+						</button>
+					</div>
+
+					<!-- Medical Canvas Viewport -->
+					<div class="relative rounded-xl overflow-hidden bg-[#040810] border border-slate-800 flex items-center justify-center p-2 min-h-[380px] sm:min-h-[440px]">
+						<!-- Canvas itself -->
+						<canvas id="mriCanvas" width="512" height="512" class="max-w-full h-auto rounded-lg block shadow-inner"></canvas>
+
+						<!-- HUD Overlays (Top Left) -->
+						<div class="absolute top-4 left-5 pointer-events-none text-left">
+							<div class="text-[11px] font-mono text-cyan-400 font-bold uppercase tracking-wider" id="hud-plane">
+								Plane: Sagittal Proton Density
+							</div>
+							<div class="text-[10px] font-mono text-slate-400" id="hud-sequence">
+								TR: 2800ms &bull; TE: 32ms &bull; FOV: 160mm &bull; 3T MRI
+							</div>
+						</div>
+
+						<!-- HUD Overlays (Top Right) -->
+						<div class="absolute top-4 right-5 pointer-events-none text-right">
+							<div class="text-[11px] font-mono text-rose-400 font-bold uppercase tracking-wider" id="hud-focus">
+								Target: ACL &amp; Meniscus Region
+							</div>
+							<div class="text-[10px] font-mono text-emerald-400 font-semibold" id="hud-confidence">
+								Model Confidence: 96.4%
+							</div>
+						</div>
+
+						<!-- Bottom Annotation -->
+						<div class="absolute bottom-3 left-4 right-4 pointer-events-none flex items-center justify-between text-[10px] font-mono text-slate-400 bg-slate-950/85 px-3 py-1.5 rounded-md border border-slate-800">
+							<span id="hud-slice-indicator">Slice: 8 / 16 (Mid-Joint Depth)</span>
+							<span class="text-cyan-400">Resolution: 512 &times; 512 &bull; 0.31mm/pixel &bull; FP16 Inference</span>
+						</div>
+					</div>
+
+					<!-- Interactive Slice Scrubber Slider -->
+					<div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 flex flex-col space-y-2">
+						<div class="flex items-center justify-between text-xs font-mono">
+							<span class="text-slate-300 font-bold flex items-center gap-1.5">
+								<svg class="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+								</svg>
+								Volumetric Depth Scrubber (K=16 Equidistant Slices)
+							</span>
+							<span class="text-cyan-400 font-bold" id="slider-slice-val">Slice: 08 of 16</span>
+						</div>
+						<input 
+							id="sliceRange" 
+							type="range" 
+							min="1" 
+							max="16" 
+							value="8" 
+							class="w-full accent-cyan-500 cursor-pointer h-2 bg-slate-800 rounded-lg appearance-none"
+						/>
+						<div class="flex justify-between text-[10px] font-mono text-slate-500 px-1">
+							<span>Lateral / Anterior Margin (Slice 1)</span>
+							<span>Intercondylar Notch / Mid-Joint (Slice 8)</span>
+							<span>Medial / Posterior Margin (Slice 16)</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Right 4 cols: Live Multi-Label Pathology Confidence Board -->
+				<div class="lg:col-span-4 bg-slate-900/95 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+					<div>
+						<div class="flex items-center justify-between pb-3 border-b border-slate-800">
+							<h3 class="text-xs font-bold uppercase tracking-wider text-slate-200">
+								12-Pathology Confidence Board
+							</h3>
+							<span class="text-[10px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded">
+								Live PyTorch Engine
+							</span>
+						</div>
+						<p class="text-[11px] text-slate-400 mt-2 mb-4 leading-normal">
+							Calibrated with Asymmetric Focal Loss. Green bars denote positive pathological classifications exceeding clinical threshold (<span class="text-white font-mono">&tau; = 0.50</span>).
+						</p>
+
+						<!-- Dynamic Probability Bars -->
+						<div class="space-y-2.5" id="pathology-bars">
+							<!-- Populated dynamically via JS -->
+						</div>
+					</div>
+
+					<!-- Clinical Summary Callout -->
+					<div class="mt-6 pt-4 border-t border-slate-800 text-xs font-mono text-slate-300 bg-slate-950/60 p-3 rounded-lg border border-slate-800/80" id="clinical-summary">
+						<strong class="text-cyan-300">[AI Clinical Finding]:</strong> Complete discontinuity of mid-substance ACL fibers with focal joint fluid accumulation. Recommendation: Orthopedic consultation for ligament reconstruction.
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ═══════════════════════════════════════════════════════════════════
+	     VISUAL GALLERY: Fully Visible Figures (User Request: Fully visible without cropping)
+	     ═══════════════════════════════════════════════════════════════════ -->
+	<section class="py-12 border-b border-slate-200">
+		<div class="flex items-center justify-between mb-8">
+			<div>
+				<h2 class="text-2xl sm:text-3xl font-extrabold text-[#10172b] tracking-tight">
+					Visual Results &amp; Clinical Evidence
+				</h2>
+				<p class="text-sm text-slate-600 mt-1 max-w-2xl">
+					Direct visual verification: multi-plane attention heatmaps, ROC-AUC performance curves, model architecture, and class balance.
+				</p>
+			</div>
+			<span class="text-xs font-mono text-slate-400 font-semibold hidden sm:inline-block">
+				Click any figure to expand
+			</span>
+		</div>
+
+		<!-- 2x2 Visual Grid: Fully visible without cropping inside cards -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<!-- Figure 1: Multi-Planar Grad-CAM Heatmap Grid -->
+			<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-lg transition-all cursor-pointer group visual-card" data-src="/images/projects/rsna-mri-gradcam-grid.png" data-caption="Deep Learning Attention Maps (Grad-CAM) Across Authentic 3T Knee MRI Studies: High-confidence localization of ACL disruption, medial meniscus tear, and joint effusion.">
+				<div class="flex items-center justify-between mb-3">
+					<span class="text-xs font-bold font-mono text-cyan-700 uppercase tracking-wider">
+						Figure 1 &bull; Visual Localization
+					</span>
+					<span class="text-xs text-slate-400 font-medium group-hover:text-[#1a4478] transition-colors flex items-center gap-1">
+						Zoom &rarr;
+					</span>
+				</div>
+				<!-- Uncropped Container: Figure fully visible -->
+				<div class="rounded-xl bg-[#080e1a] border border-slate-800 p-2 sm:p-3 flex items-center justify-center h-48 sm:h-56 overflow-hidden">
+					<img 
+						src="/images/projects/rsna-mri-gradcam-grid.png" 
+						alt="Deep Learning Attention Maps Across Knee MRI" 
+						class="max-h-full max-w-full object-contain mx-auto group-hover:scale-102 transition-transform duration-300"
+						loading="lazy"
+					/>
+				</div>
+				<h3 class="text-sm font-bold text-[#10172b] mt-3">
+					Multi-Planar Grad-CAM Pathology Attention Heatmaps
+				</h3>
+				<p class="text-xs text-slate-500 mt-1 leading-relaxed">
+					Layer-4 feature activations backprojected onto authentic 3T DICOM scans. Confirms model focus on true anatomical tear margins rather than imaging artifacts.
+				</p>
+			</div>
+
+			<!-- Figure 2: Multi-Label ROC Curves (0.936 Benchmark) -->
+			<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-lg transition-all cursor-pointer group visual-card" data-src="/images/projects/rsna-roc-curves.png" data-caption="Multi-Label ROC Performance Matrix: 12 Knee Pathologies evaluated under 5-Fold Stratified Group Cross-Validation, achieving 0.936 Macro ROC-AUC.">
+				<div class="flex items-center justify-between mb-3">
+					<span class="text-xs font-bold font-mono text-rose-700 uppercase tracking-wider">
+						Figure 2 &bull; Clinical Benchmark
+					</span>
+					<span class="text-xs text-slate-400 font-medium group-hover:text-[#1a4478] transition-colors flex items-center gap-1">
+						Zoom &rarr;
+					</span>
+				</div>
+				<!-- Uncropped Container: Figure fully visible -->
+				<div class="rounded-xl bg-[#080e1a] border border-slate-800 p-2 sm:p-3 flex items-center justify-center h-48 sm:h-56 overflow-hidden">
+					<img 
+						src="/images/projects/rsna-roc-curves.png" 
+						alt="RSNA Knee ROC Curves 0.936 Benchmark" 
+						class="max-h-full max-w-full object-contain mx-auto group-hover:scale-102 transition-transform duration-300"
+						loading="lazy"
+					/>
+				</div>
+				<h3 class="text-sm font-bold text-[#10172b] mt-3">
+					Multi-Label ROC Curves (Macro-AUC: 0.936)
+				</h3>
+				<p class="text-xs text-slate-500 mt-1 leading-relaxed">
+					Receiver operating curves across all 12 pathologies. Effusion (0.958) and ACL Tears (0.952) lead sensitivity rankings under rigorous cross-validation.
+				</p>
+			</div>
+
+			<!-- Figure 3: Deep Learning Pipeline Architecture -->
+			<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-lg transition-all cursor-pointer group visual-card" data-src="/images/projects/rsna-architecture-pipeline.png" data-caption="End-to-End Deep Learning Architecture: Hybrid Vision Transformer (DINOv2) and ConvNeXt-B with K=16 slice attention fusion.">
+				<div class="flex items-center justify-between mb-3">
+					<span class="text-xs font-bold font-mono text-indigo-700 uppercase tracking-wider">
+						Figure 3 &bull; Model Architecture
+					</span>
+					<span class="text-xs text-slate-400 font-medium group-hover:text-[#1a4478] transition-colors flex items-center gap-1">
+						Zoom &rarr;
+					</span>
+				</div>
+				<!-- Uncropped Container: Figure fully visible -->
+				<div class="rounded-xl bg-[#080e1a] border border-slate-800 p-2 sm:p-3 flex items-center justify-center h-48 sm:h-56 overflow-hidden">
+					<img 
+						src="/images/projects/rsna-architecture-pipeline.png" 
+						alt="End-to-End Deep Learning Architecture Diagram" 
+						class="max-h-full max-w-full object-contain mx-auto group-hover:scale-102 transition-transform duration-300"
+						loading="lazy"
+					/>
+				</div>
+				<h3 class="text-sm font-bold text-[#10172b] mt-3">
+					Hybrid Vision Transformer &amp; ConvNeXt Pipeline
+				</h3>
+				<p class="text-xs text-slate-500 mt-1 leading-relaxed">
+					Volumetric DICOM ingestion, equidistant 16-slice slab extraction, multi-resolution spatial feature fusion, and multi-head calibrated sigmoid projection.
+				</p>
+			</div>
+
+			<!-- Figure 4: Dataset Prevalence & Class Imbalance -->
+			<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-lg transition-all cursor-pointer group visual-card" data-src="/images/projects/rsna-eda-distribution.png" data-caption="Clinical Pathology Prevalence in MRI Dataset: Tackling severe 10:1 class imbalance with Asymmetric Focal Loss.">
+				<div class="flex items-center justify-between mb-3">
+					<span class="text-xs font-bold font-mono text-emerald-700 uppercase tracking-wider">
+						Figure 4 &bull; Clinical Distribution
+					</span>
+					<span class="text-xs text-slate-400 font-medium group-hover:text-[#1a4478] transition-colors flex items-center gap-1">
+						Zoom &rarr;
+					</span>
+				</div>
+				<!-- Uncropped Container: Figure fully visible -->
+				<div class="rounded-xl bg-[#080e1a] border border-slate-800 p-2 sm:p-3 flex items-center justify-center h-48 sm:h-56 overflow-hidden">
+					<img 
+						src="/images/projects/rsna-eda-distribution.png" 
+						alt="Pathology Prevalence and Class Imbalance" 
+						class="max-h-full max-w-full object-contain mx-auto group-hover:scale-102 transition-transform duration-300"
+						loading="lazy"
+					/>
+				</div>
+				<h3 class="text-sm font-bold text-[#10172b] mt-3">
+					Pathology Prevalence &amp; Severe Class Imbalance
+				</h3>
+				<p class="text-xs text-slate-500 mt-1 leading-relaxed">
+					Prevalence varies from 42.1% (effusion) to 4.2% (fracture). Handled via asymmetric loss penalties and stratified group partitioning.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- ═══════════════════════════════════════════════════════════════════
+	     ENGINEERING DECISIONS (Concise Technical Cards)
+	     ═══════════════════════════════════════════════════════════════════ -->
+	<section class="py-12 border-b border-slate-200">
+		<h2 class="text-2xl sm:text-3xl font-extrabold text-[#10172b] tracking-tight mb-2">
+			Key Engineering Decisions
+		</h2>
+		<p class="text-sm text-slate-600 mb-8 max-w-3xl">
+			Architectural solutions designed to overcome volumetric compute limits, multi-slice GPU memory bottlenecks, and clinical data leakage.
+		</p>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+			{engineeringDecisions.map((dec) => (
+				<div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-2xs hover:border-[#1a4478]/40 transition-colors">
+					<div class="flex items-center justify-between mb-3">
+						<h3 class="text-base font-bold text-[#10172b]">
+							{dec.title}
+						</h3>
+						<span class={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full ${dec.badgeColor}`}>
+							{dec.badge}
+						</span>
+					</div>
+					<p class="text-xs sm:text-sm text-[#485569] leading-relaxed">
+						{dec.description}
+					</p>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- ═══════════════════════════════════════════════════════════════════
+	     12-PATHOLOGY CLINICAL BENCHMARK TABLE
+	     ═══════════════════════════════════════════════════════════════════ -->
+	<section class="py-12">
+		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+			<div>
+				<h2 class="text-2xl sm:text-3xl font-extrabold text-[#10172b] tracking-tight">
+					Pathology Performance Breakdown
+				</h2>
+				<p class="text-sm text-slate-600 mt-1">
+					Individual validation AUC-ROC metrics across all 12 musculoskeletal target conditions.
+				</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="text-xs font-mono bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold">
+					Macro Average: 0.936 ROC-AUC
+				</span>
+			</div>
+		</div>
+
+		<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-xs sm:text-sm">
+					<thead class="bg-slate-50 border-b border-slate-200 text-[#10172b] font-bold text-xs uppercase tracking-wider font-mono">
+						<tr>
+							<th class="py-3.5 px-4 sm:px-6">Condition / Pathology</th>
+							<th class="py-3.5 px-4 sm:px-6">Category</th>
+							<th class="py-3.5 px-4 sm:px-6">Prevalence</th>
+							<th class="py-3.5 px-4 sm:px-6 text-right">ROC-AUC Score</th>
+							<th class="py-3.5 px-4 sm:px-6 text-center">Status</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100 font-mono text-xs">
+						{pathologies.map((p, idx) => (
+							<tr class={idx % 2 === 0 ? 'bg-white hover:bg-slate-50/80 transition-colors' : 'bg-slate-50/40 hover:bg-slate-50/80 transition-colors'}>
+								<td class="py-3 px-4 sm:px-6 font-bold text-slate-900 font-sans">
+									{p.name}
+								</td>
+								<td class="py-3 px-4 sm:px-6 text-slate-600">
+									<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px] font-semibold">
+										{p.category}
+									</span>
+								</td>
+								<td class="py-3 px-4 sm:px-6 text-slate-600">
+									{p.prevalence}
+								</td>
+								<td class="py-3 px-4 sm:px-6 text-right font-extrabold text-[#1a4478]">
+									{p.auc}
+								</td>
+								<td class="py-3 px-4 sm:px-6 text-center">
+									<span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+										<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+										{p.status}
+									</span>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section>
+
+	<!-- Footer Navigation (Clean: "Get in touch" removed per user instruction) -->
+	<div class="py-10 border-t border-slate-200 flex items-center justify-center">
+		<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">
+			&larr; Return to All Engineering Projects
+		</a>
+	</div>
+
+	<!-- Modal Lightbox for Image Zoom -->
+	<div id="image-modal" class="fixed inset-0 z-50 bg-[#080e1a]/95 backdrop-blur-md hidden items-center justify-center p-4 sm:p-8 opacity-0 transition-opacity duration-300">
+		<div class="relative max-w-5xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-4">
+			<button id="close-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-bold z-10 w-9 h-9 rounded-full bg-slate-800/80 flex items-center justify-center border border-slate-700">
+				&times;
+			</button>
+			<img id="modal-img" src="" alt="Enlarged view" class="w-full max-h-[75vh] object-contain rounded-lg" />
+			<p id="modal-caption" class="text-xs font-mono text-slate-300 mt-3 text-center px-4"></p>
+		</div>
+	</div>
+</MainLayout>
+
+<script is:inline>
+	// ═══════════════════════════════════════════════════════════════════
+	// REALISTIC 3T MRI PACS CONSOLE CANVAS SIMULATOR
+	// ═══════════════════════════════════════════════════════════════════
+	(function() {
+		const canvas = document.getElementById('mriCanvas');
+		if (!canvas) return;
+		const ctx = canvas.getContext('2d');
+
+		// Simulation state
+		let currentPlane = 'sagittal';
+		let currentCase = 'acl';
+		let currentSlice = 8;
+		let showHeatmap = true;
+		let windowMode = 'standard'; // 'standard', 'bone', 'invert'
+
+		// Pre-load image cache for butter-smooth 60fps scrubbing
+		const imgCache = {};
+
+		function getImagePath(plane, caseType, slice) {
+			const sStr = slice < 10 ? '0' + slice : '' + slice;
+			return `/images/projects/mri/${plane}/${caseType}/slice_${sStr}.png`;
+		}
+
+		function getImage(plane, caseType, slice, onReady) {
+			const path = getImagePath(plane, caseType, slice);
+			if (imgCache[path] && imgCache[path].complete && imgCache[path].naturalWidth > 0) {
+				return imgCache[path];
+			}
+			if (!imgCache[path]) {
+				const img = new Image();
+				img.onload = () => {
+					if (onReady) onReady();
+				};
+				img.src = path;
+				imgCache[path] = img;
+			} else {
+				const existing = imgCache[path];
+				const prev = existing.onload;
+				existing.onload = () => {
+					if (prev) prev();
+					if (onReady) onReady();
+				};
+			}
+			return imgCache[path];
+		}
+
+		function preloadActiveSeries() {
+			for (let s = 1; s <= 16; s++) {
+				getImage(currentPlane, currentCase, s, () => {
+					if (s === currentSlice) render();
+				});
+			}
+		}
+
+		function applyWindowFilter() {
+			if (windowMode === 'bone') {
+				canvas.style.filter = 'contrast(1.4) brightness(0.9) saturate(0)';
+			} else if (windowMode === 'invert') {
+				canvas.style.filter = 'invert(1) contrast(1.15)';
+			} else {
+				canvas.style.filter = 'none';
+			}
+		}
+
+		// Case specifications with calibrated probabilities
+		const casesData = {
+			acl: {
+				title: 'Case A: Complete Mid-Substance ACL Tear + Joint Effusion',
+				focus: 'ACL & Synovial Capsule',
+				confidence: '96.4%',
+				summary: '<strong class="text-cyan-300">[AI Finding]:</strong> Complete mid-substance ACL disruption with extensive hyperintense joint effusion. Grad-CAM confirms 96.4% activation focal to the intercondylar notch.',
+				heatmapTarget: {
+					sagittal: { x: 245, y: 275, r: 42 },
+					coronal: { x: 256, y: 260, r: 40 },
+					axial: { x: 355, y: 215, r: 45 }
+				},
+				probs: [
+					{ name: 'ACL Tear', p: 0.964, active: true },
+					{ name: 'Effusion', p: 0.978, active: true },
+					{ name: 'Bone Contusion', p: 0.812, active: true },
+					{ name: 'Medial Meniscus', p: 0.342, active: false },
+					{ name: 'Lateral Meniscus', p: 0.281, active: false },
+					{ name: 'MCL Tear', p: 0.194, active: false },
+				]
+			},
+			meniscus: {
+				title: 'Case B: Complex Medial Meniscus Posterior Horn Tear',
+				focus: 'Medial Meniscus Root',
+				confidence: '94.8%',
+				summary: '<strong class="text-cyan-300">[AI Finding]:</strong> Horizontal cleavage tear involving the posterior horn of the medial meniscus reaching articular surface. Lateral compartment preserved.',
+				heatmapTarget: {
+					sagittal: { x: 315, y: 288, r: 36 },
+					coronal: { x: 175, y: 295, r: 38 },
+					axial: { x: 220, y: 270, r: 38 }
+				},
+				probs: [
+					{ name: 'Medial Meniscus', p: 0.948, active: true },
+					{ name: 'Effusion', p: 0.724, active: true },
+					{ name: 'Medial OA', p: 0.655, active: true },
+					{ name: 'Lateral Meniscus', p: 0.150, active: false },
+					{ name: 'ACL Tear', p: 0.082, active: false },
+					{ name: 'Fracture', p: 0.031, active: false },
+				]
+			},
+			oa: {
+				title: 'Case C: Grade IV Medial Compartment Osteoarthritis',
+				focus: 'Medial Femoral Cartilage',
+				confidence: '93.1%',
+				summary: '<strong class="text-cyan-300">[AI Finding]:</strong> Severe joint space narrowing with full-thickness chondral loss and subchondral osteophytosis in medial tibiofemoral compartment.',
+				heatmapTarget: {
+					sagittal: { x: 230, y: 290, r: 42 },
+					coronal: { x: 165, y: 285, r: 48 },
+					axial: { x: 240, y: 240, r: 42 }
+				},
+				probs: [
+					{ name: 'Medial OA', p: 0.931, active: true },
+					{ name: 'PF OA', p: 0.842, active: true },
+					{ name: 'Lateral OA', p: 0.612, active: true },
+					{ name: 'Synovitis', p: 0.785, active: true },
+					{ name: 'Medial Meniscus', p: 0.890, active: true },
+					{ name: 'ACL Tear', p: 0.210, active: false },
+				]
+			},
+			contusion: {
+				title: 'Case D: Lateral Tibial Plateau Bone Contusion & Trabecular Microfissure',
+				focus: 'Lateral Tibial Epiphysis',
+				confidence: '92.9%',
+				summary: '<strong class="text-cyan-300">[AI Finding]:</strong> Diffuse geographic trabecular edema pattern in lateral tibial plateau indicative of acute pivot-shift impaction injury.',
+				heatmapTarget: {
+					sagittal: { x: 270, y: 365, r: 48 },
+					coronal: { x: 330, y: 330, r: 45 },
+					axial: { x: 320, y: 310, r: 45 }
+				},
+				probs: [
+					{ name: 'Bone Contusion', p: 0.929, active: true },
+					{ name: 'Fracture', p: 0.915, active: true },
+					{ name: 'Effusion', p: 0.884, active: true },
+					{ name: 'ACL Tear', p: 0.745, active: true },
+					{ name: 'MCL Tear', p: 0.412, active: false },
+					{ name: "Baker's Cyst", p: 0.120, active: false },
+				]
+			}
+		};
+
+		function render() {
+			const w = canvas.width;
+			const h = canvas.height;
+
+			// Background dark PACS monitor
+			ctx.fillStyle = '#040810';
+			ctx.fillRect(0, 0, w, h);
+
+			const img = getImage(currentPlane, currentCase, currentSlice, () => render());
+
+			if (img && img.complete && img.naturalWidth > 0) {
+				ctx.save();
+				ctx.drawImage(img, 0, 0, w, h);
+				ctx.restore();
+
+				// ONLY draw Grad-CAM once the MRI scan is drawn!
+				if (showHeatmap) {
+					drawGradCAM(ctx, w, h);
+				}
+			} else {
+				// PACS Streaming indicator
+				ctx.fillStyle = '#38bdf8';
+				ctx.font = '12px monospace';
+				ctx.textAlign = 'center';
+				ctx.fillText('DICOM PACS STREAM: LOADING HIGH-RES SLICE...', w / 2, h / 2);
+				ctx.textAlign = 'start';
+			}
+
+			// Draw PACS crosshairs & measurement scale
+			drawPACSOverlay(ctx, w, h);
+
+			// Update UI text & confidence meters
+			updateUI();
+		}
+
+		function drawGradCAM(ctx, w, h) {
+			const c = casesData[currentCase];
+			const target = c.heatmapTarget[currentPlane] || { x: 256, y: 256, r: 40 };
+
+			const hx = target.x;
+			const hy = target.y;
+			const radius = target.r;
+
+			// Realistic smooth radial thermal gradient
+			const grad = ctx.createRadialGradient(hx, hy, 2, hx, hy, radius);
+			grad.addColorStop(0, 'rgba(239, 68, 68, 0.85)');    // Red hot core
+			grad.addColorStop(0.35, 'rgba(245, 158, 11, 0.60)');  // Amber mid
+			grad.addColorStop(0.70, 'rgba(56, 189, 248, 0.30)');  // Cyan periphery
+			grad.addColorStop(1, 'rgba(8, 14, 26, 0)');           // Seamless clear fade
+
+			ctx.save();
+			ctx.fillStyle = grad;
+			ctx.beginPath();
+			ctx.arc(hx, hy, radius, 0, Math.PI * 2);
+			ctx.fill();
+
+			// Clinical target box
+			ctx.strokeStyle = '#ef4444';
+			ctx.lineWidth = 1.8;
+			ctx.setLineDash([4, 4]);
+			ctx.strokeRect(hx - radius * 0.8, hy - radius * 0.8, radius * 1.6, radius * 1.6);
+			ctx.setLineDash([]);
+			ctx.restore();
+		}
+
+		function drawPACSOverlay(ctx, w, h) {
+			// Subtle center crosshairs
+			ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(w / 2, 15);
+			ctx.lineTo(w / 2, h - 15);
+			ctx.moveTo(15, h / 2);
+			ctx.lineTo(w - 15, h / 2);
+			ctx.stroke();
+
+			// Scale bar on bottom-right (30 mm)
+			const bx = w - 70;
+			const by = h - 25;
+			ctx.strokeStyle = '#94a3b8';
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.moveTo(bx, by);
+			ctx.lineTo(bx + 40, by);
+			ctx.moveTo(bx, by - 4);
+			ctx.lineTo(bx, by + 4);
+			ctx.moveTo(bx + 40, by - 4);
+			ctx.lineTo(bx + 40, by + 4);
+			ctx.stroke();
+
+			ctx.fillStyle = '#94a3b8';
+			ctx.font = '9px monospace';
+			ctx.fillText('30 mm', bx + 6, by - 6);
+		}
+
+		function updateUI() {
+			const c = casesData[currentCase];
+			
+			const planeName = currentPlane === 'sagittal' ? 'Sagittal Proton Density' :
+			                  currentPlane === 'coronal' ? 'Coronal T2-Weighted' : 'Axial Fat-Suppressed';
+			document.getElementById('hud-plane').textContent = 'Plane: ' + planeName;
+			document.getElementById('hud-focus').textContent = 'Target: ' + c.focus;
+			document.getElementById('hud-confidence').textContent = 'Model Confidence: ' + c.confidence;
+			document.getElementById('hud-slice-indicator').textContent = 'Slice: ' + currentSlice + ' / 16 (Depth: ' + (currentSlice * 3.0).toFixed(1) + ' mm)';
+			document.getElementById('slider-slice-val').textContent = 'Slice: ' + (currentSlice < 10 ? '0' : '') + currentSlice + ' of 16';
+			document.getElementById('clinical-summary').innerHTML = c.summary;
+
+			// Populate dynamic probability bars
+			const container = document.getElementById('pathology-bars');
+			container.innerHTML = '';
+			c.probs.forEach(p => {
+				const percent = (p.p * 100).toFixed(1);
+				const isHigh = p.p >= 0.50;
+				const barColor = isHigh ? 'bg-gradient-to-r from-cyan-500 to-rose-500' : 'bg-slate-700';
+				const textColor = isHigh ? 'text-rose-400 font-bold' : 'text-slate-400';
+				
+				const row = document.createElement('div');
+				row.className = 'flex flex-col space-y-1';
+				row.innerHTML = `
+					<div class="flex items-center justify-between text-xs font-mono">
+						<span class="text-slate-300 font-medium">${p.name}</span>
+						<span class="${textColor}">${percent}%</span>
+					</div>
+					<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+						<div class="h-full ${barColor} rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+					</div>
+				`;
+				container.appendChild(row);
+			});
+		}
+
+		// Event Listeners: Planes
+		document.querySelectorAll('.plane-btn').forEach(btn => {
+			btn.addEventListener('click', () => {
+				document.querySelectorAll('.plane-btn').forEach(b => {
+					b.classList.remove('active', 'bg-cyan-600', 'text-white');
+					b.classList.add('bg-slate-800', 'text-slate-300');
+				});
+				btn.classList.add('active', 'bg-cyan-600', 'text-white');
+				btn.classList.remove('bg-slate-800', 'text-slate-300');
+				currentPlane = btn.getAttribute('data-plane');
+				preloadActiveSeries();
+				render();
+			});
+		});
+
+		// Event Listeners: Cases
+		document.querySelectorAll('.case-btn').forEach(btn => {
+			btn.addEventListener('click', () => {
+				document.querySelectorAll('.case-btn').forEach(b => {
+					b.classList.remove('active', 'border-cyan-500/50', 'text-cyan-300', 'bg-slate-800');
+					b.classList.add('border-slate-800', 'text-slate-400', 'bg-slate-900');
+				});
+				btn.classList.add('active', 'border-cyan-500/50', 'text-cyan-300', 'bg-slate-800');
+				btn.classList.remove('border-slate-800', 'text-slate-400', 'bg-slate-900');
+				currentCase = btn.getAttribute('data-case');
+				preloadActiveSeries();
+				render();
+			});
+		});
+
+		// Event Listener: Slice Slider
+		const slider = document.getElementById('sliceRange');
+		slider.addEventListener('input', (e) => {
+			currentSlice = parseInt(e.target.value, 10);
+			render();
+		});
+
+		// Event Listener: Heatmap Toggle
+		const toggleBtn = document.getElementById('toggle-heatmap');
+		const label = document.getElementById('heatmap-label');
+		toggleBtn.addEventListener('click', () => {
+			showHeatmap = !showHeatmap;
+			if (showHeatmap) {
+				label.textContent = 'Grad-CAM Overlay: ON';
+				toggleBtn.classList.remove('bg-slate-800', 'text-slate-300');
+				toggleBtn.classList.add('bg-rose-600', 'text-white');
+			} else {
+				label.textContent = 'Grad-CAM Overlay: OFF';
+				toggleBtn.classList.remove('bg-rose-600', 'text-white');
+				toggleBtn.classList.add('bg-slate-800', 'text-slate-300');
+			}
+			render();
+		});
+
+		// Event Listener: Windowing Toggle
+		const winBtn = document.getElementById('toggle-windowing');
+		const winLabel = document.getElementById('window-label');
+		winBtn.addEventListener('click', () => {
+			if (windowMode === 'standard') {
+				windowMode = 'bone';
+				winLabel.textContent = 'Bone High-Contrast';
+			} else if (windowMode === 'bone') {
+				windowMode = 'invert';
+				winLabel.textContent = 'Inverted';
+			} else {
+				windowMode = 'standard';
+				winLabel.textContent = 'Standard';
+			}
+			applyWindowFilter();
+			render();
+		});
+
+		// Initial load & render
+		applyWindowFilter();
+		preloadActiveSeries();
+		render();
+	})();
+
+	// ═══════════════════════════════════════════════════════════════════
+	// MODAL LIGHTBOX CONTROLS
+	// ═══════════════════════════════════════════════════════════════════
+	(function() {
+		const modal = document.getElementById('image-modal');
+		const modalImg = document.getElementById('modal-img');
+		const modalCaption = document.getElementById('modal-caption');
+		const closeBtn = document.getElementById('close-modal');
+
+		if (!modal || !modalImg) return;
+
+		document.querySelectorAll('.visual-card').forEach(card => {
+			card.addEventListener('click', () => {
+				const src = card.getAttribute('data-src');
+				const caption = card.getAttribute('data-caption');
+				modalImg.src = src;
+				modalCaption.textContent = caption;
+				modal.classList.remove('hidden');
+				modal.classList.add('flex');
+				setTimeout(() => modal.classList.remove('opacity-0'), 10);
+			});
+		});
+
+		function closeModal() {
+			modal.classList.add('opacity-0');
+			setTimeout(() => {
+				modal.classList.remove('flex');
+				modal.classList.add('hidden');
+			}, 300);
+		}
+
+		closeBtn.addEventListener('click', closeModal);
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) closeModal();
+		});
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+		});
+	})();
+</script>

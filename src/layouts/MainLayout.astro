@@ -1,0 +1,180 @@
+---
+// MainLayout.astro - High Visual Impact Edition
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+	image?: string;
+	activeTab?: 'home' | 'projects' | 'education' | 'experience' | 'contact';
+}
+
+const { 
+	title = 'Álvaro García Casas | Biomedical Engineering',
+	description = 'Personal portfolio of Álvaro García Casas. Biomedical Engineering at UC3M and Georgia Tech. Specializing in medical devices, AI in healthcare, electrophysiology and imaging.',
+	image = '/images/projects/smartknob-assembled.jpg',
+	activeTab = 'home'
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#10172b" />
+		
+		<!-- Primary Meta Tags & SEO -->
+		<title>{title}</title>
+		<meta name="title" content={title} />
+		<meta name="description" content={description} />
+		<meta name="author" content="Álvaro García Casas" />
+		<meta name="robots" content="index, follow" />
+		<link rel="canonical" href={new URL(Astro.url.pathname, 'https://alvarogarcia.me').href} />
+
+		<!-- Security & Privacy Meta -->
+		<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+		<meta name="referrer" content="strict-origin-when-cross-origin" />
+
+		<!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Álvaro García Casas Portfolio" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image.startsWith('http') ? image : `https://alvarogarcia.me${image}`} />
+		<meta property="og:url" content={new URL(Astro.url.pathname, 'https://alvarogarcia.me').href} />
+		<meta property="og:locale" content="en_US" />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={image.startsWith('http') ? image : `https://alvarogarcia.me${image}`} />
+
+		<!-- Multiplatform Touch Icons -->
+		<link rel="apple-touch-icon" href="/favicon.svg" />
+		
+		<!-- Typography: Inter & JetBrains Mono -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+		
+		<!-- Anti-Clickjacking Frame Buster -->
+		<style id="antiClickjack">body{display:none !important;}</style>
+		<script is:inline>
+			if (self === top) {
+				var antiClickjack = document.getElementById("antiClickjack");
+				if (antiClickjack && antiClickjack.parentNode) {
+					antiClickjack.parentNode.removeChild(antiClickjack);
+				}
+			} else {
+				top.location = self.location;
+			}
+		</script>
+
+		<style>
+			:root {
+				font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			}
+			.font-mono {
+				font-family: 'JetBrains Mono', monospace;
+			}
+		</style>
+	</head>
+	<body class="bg-[#f2eee6] text-[#10172b] antialiased min-h-screen flex flex-col selection:bg-[#10172b] selection:text-[#f2eee6]">
+		<!-- Top Subtle Accent Bar -->
+		<div class="h-1 w-full bg-[#10172b]/10"></div>
+
+		<!-- Navigation Header (Spaced, no bullet, left aligned) -->
+		<header class="sticky top-0 z-50 backdrop-blur-md bg-[#f2eee6]/90 border-b border-[#10172b]/10 shadow-2xs">
+			<div class="max-w-7xl mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
+				<!-- Brand Identity (Left-aligned, no bullet dot) -->
+				<a href="/" class="flex flex-col group text-left">
+					<span class="text-lg sm:text-xl font-bold tracking-tight text-[#10172b] group-hover:text-[#1a4478] transition-colors">
+						Álvaro García Casas
+					</span>
+					<span class="text-xs font-medium text-[#485569]">
+						Biomedical Engineering &nbsp;&bull;&nbsp; UC3M / Georgia Tech
+					</span>
+				</a>
+				
+				<!-- Main Nav Links: Fondo redondeado azul océano y letras pastel en hover -->
+				<nav class="hidden md:flex items-center gap-2 text-sm font-semibold tracking-wide">
+					<a 
+						href="/" 
+						class={`transition-all px-3.5 py-1.5 rounded-lg ${activeTab === 'home' ? 'bg-[#10172b] text-[#f2eee6]' : 'text-[#485569] hover:bg-[#1a4478] hover:text-[#f2eee6]'}`}
+					>
+						Home
+					</a>
+					<a 
+						href="/projects" 
+						class={`transition-all px-3.5 py-1.5 rounded-lg ${activeTab === 'projects' ? 'bg-[#10172b] text-[#f2eee6]' : 'text-[#485569] hover:bg-[#1a4478] hover:text-[#f2eee6]'}`}
+					>
+						Projects
+					</a>
+					<a 
+						href="/education" 
+						class={`transition-all px-3.5 py-1.5 rounded-lg ${activeTab === 'education' ? 'bg-[#10172b] text-[#f2eee6]' : 'text-[#485569] hover:bg-[#1a4478] hover:text-[#f2eee6]'}`}
+					>
+						Education
+					</a>
+					<a 
+						href="/experience" 
+						class={`transition-all px-3.5 py-1.5 rounded-lg ${activeTab === 'experience' ? 'bg-[#10172b] text-[#f2eee6]' : 'text-[#485569] hover:bg-[#1a4478] hover:text-[#f2eee6]'}`}
+					>
+						Experience
+					</a>
+					<a 
+						href="/contact" 
+						class={`transition-all px-3.5 py-1.5 rounded-lg ${activeTab === 'contact' ? 'bg-[#10172b] text-[#f2eee6]' : 'text-[#485569] hover:bg-[#1a4478] hover:text-[#f2eee6]'}`}
+					>
+						Contact
+					</a>
+				</nav>
+
+				<!-- CV Action Button (Navy Blue Davis Ryan Style) -->
+				<div class="flex items-center gap-3">
+					<a 
+						href="/CVs/CV_portfolio_EN.pdf" 
+						target="_blank" 
+						class="text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-lg bg-[#10172b] text-white hover:bg-[#1a4478] transition-all shadow-xs inline-flex items-center gap-1.5"
+					>
+						<span>CV</span>
+						<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+						</svg>
+					</a>
+				</div>
+			</div>
+
+			<!-- Mobile Navigation Bar -->
+			<div class="md:hidden flex items-center justify-around border-t border-[#10172b]/10 px-4 py-3 text-xs font-semibold bg-[#f2eee6] text-[#485569]">
+				<a href="/" class={activeTab === 'home' ? 'text-[#10172b] font-bold' : ''}>Home</a>
+				<a href="/projects" class={activeTab === 'projects' ? 'text-[#10172b] font-bold' : ''}>Projects</a>
+				<a href="/education" class={activeTab === 'education' ? 'text-[#10172b] font-bold' : ''}>Education</a>
+				<a href="/experience" class={activeTab === 'experience' ? 'text-[#10172b] font-bold' : ''}>Experience</a>
+				<a href="/contact" class={activeTab === 'contact' ? 'text-[#10172b] font-bold' : ''}>Contact</a>
+			</div>
+		</header>
+
+		<!-- Main Slot Content -->
+		<main class="flex-1 max-w-7xl w-full mx-auto px-6 sm:px-10">
+			<slot />
+		</main>
+
+		<!-- Footer -->
+		<footer class="mt-20 border-t border-[#10172b]/10 bg-[#f2eee6] py-10 text-center text-xs text-[#485569]">
+			<div class="max-w-7xl mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+				<p>&copy; {new Date().getFullYear()} &nbsp; Álvaro García Casas. &nbsp; All rights reserved.</p>
+				<div class="flex items-center gap-6 font-semibold">
+					<a href="/privacy" class="text-[#485569] hover:text-[#10172b] transition-colors underline underline-offset-2">Privacy & Legal Notice</a>
+					<a href="https://www.linkedin.com/in/alvaro-garcia-casas/" target="_blank" rel="noopener noreferrer" class="text-[#10172b] hover:text-[#1a4478] transition-colors">LinkedIn</a>
+					<a href="https://github.com/alvaro-garcia-bme" target="_blank" rel="noopener noreferrer" class="text-[#10172b] hover:text-[#1a4478] transition-colors">GitHub</a>
+					<a href="mailto:alvaro.garcia.bme@gmail.com" class="text-[#10172b] hover:text-[#1a4478] transition-colors">Email</a>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>

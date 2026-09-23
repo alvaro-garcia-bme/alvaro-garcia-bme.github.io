@@ -1,0 +1,800 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+
+// Key metrics directly matching the poster & paper
+const metrics = [
+	{ label: 'Erastin Potency (IC₅₀)', value: '0.50 mM', detail: '5.0 µL of 20 mM stock / 200 µL well' },
+	{ label: 'Tumor Cell Reduction', value: '~40.0%', detail: 'Viability drop from 100% to 60% (Additive)' },
+	{ label: 'Seeding Density', value: '5,000 / well', detail: 'U87EGFP glioblastoma cells (48h attachment)' },
+	{ label: 'Readout Spectrophotometry', value: '450 nm', detail: 'CCK-8 (WST-8) dehydrogenase reduction' },
+];
+
+// Poster Experimental Flow (Aim 1 & Aim 2)
+const aims = [
+	{
+		aim: 'AIM 1',
+		title: 'Cellular Toxicity & IC₅₀ Determination',
+		subtitle: 'Single-Agent Profiling',
+		badge: 'Dose-Response',
+		color: 'emerald',
+		points: [
+			'Quantify U87EGFP toxicity of Erastin and Ursolic Acid (UA) individually.',
+			'Establish monotonic IC₁₀ (0.1 µL), IC₂₅ (1.0 µL), and IC₅₀ (5.0 µL) for Erastin.',
+			'Determine optimal fixed working dose for Ursolic Acid (5.0 µL static treatment).'
+		]
+	},
+	{
+		aim: 'AIM 2',
+		title: 'Dual Interaction & Morphological Impact',
+		subtitle: 'Combination & Phenotype',
+		badge: 'Additive Efficacy',
+		color: 'teal',
+		points: [
+			'Test fixed UA (5.0 µL) combined with escalating Erastin (IC₁₀, IC₂₅, IC₅₀).',
+			'Quantify cell viability via CCK-8 assay: dropped to ~60% at IC₅₀ combination.',
+			'Characterize apoptotic phenotype vs. cobblestone control via EVOS fluorescence.'
+		]
+	}
+];
+
+// Essential Wet-Lab & Biopharma Reagents (Directly from Poster)
+const materials = [
+	{ category: 'Cell Line & Reagents', items: ['U87EGFP Glioblastoma', 'Ursolic Acid (UA)', 'Erastin (System Xc⁻ Inhibitor)', 'Complete DMEM Media', 'Trypsin-EDTA & PBS', 'Trypan Blue (>95% Viability)'] },
+	{ category: 'Assay Kits & Readout', items: ['CCK-8 Cell Counting Kit', 'Tecan Infinite 200Pro (OD 450nm)', 'Formazan Colorimetry', '4PL Nonlinear Curve Fitting'] },
+	{ category: 'Optical & Lab Equipment', items: ['EVOS FL Auto Microscope', 'Nikon Inverted Microscope', 'C-Chip Hemocytometer', '96-Well Flat-Bottom Plates', 'BSL-2 Biosafety Cabinet'] }
+];
+
+// Precomputed 96-well microplate layout
+const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+const plateGrid = rowLetters.map((rowLetter, rIdx) => {
+	const wells = Array.from({ length: 12 }, (_, colIdx) => {
+		const col = colIdx + 1;
+		let group = 'media';
+		let name = 'Blank (Media Only)';
+		let dose = '0 µL';
+		let od = '0.045';
+		let viab = '0%';
+		let colorClass = 'bg-slate-200 border-slate-300';
+		let phenotype = 'Blank baseline for calibration';
+
+		if (col === 1 || col === 12) {
+			group = 'blank';
+			name = 'Perimeter Edge Barrier';
+			dose = '200 µL PBS';
+			od = '0.042';
+			viab = 'N/A';
+			colorClass = 'bg-slate-200 border-slate-300';
+			phenotype = 'Prevents evaporative edge meniscus';
+		} else if (rIdx < 2 && col >= 2 && col <= 4) {
+			group = 'control';
+			name = 'Untreated Control';
+			dose = '0 µL (0.05% DMSO)';
+			od = '1.482';
+			viab = '100.0%';
+			colorClass = 'bg-emerald-500 border-emerald-600 hover:ring-2 hover:ring-emerald-400';
+			phenotype = 'Dense cobblestone monolayer, intact membranes';
+		} else if (rIdx < 2 && col >= 5 && col <= 7) {
+			group = 'erastin';
+			name = 'Erastin IC₁₀';
+			dose = '0.1 µL (0.01 mM)';
+			od = '1.385';
+			viab = '93.5%';
+			colorClass = 'bg-emerald-400 border-emerald-500 hover:ring-2 hover:ring-emerald-300';
+			phenotype = 'Intact adherent monolayer';
+		} else if (rIdx < 2 && col >= 8 && col <= 10) {
+			group = 'erastin';
+			name = 'Erastin IC₂₅';
+			dose = '1.0 µL (0.10 mM)';
+			od = '1.140';
+			viab = '77.0%';
+			colorClass = 'bg-teal-400 border-teal-500 hover:ring-2 hover:ring-teal-300';
+			phenotype = 'Mild cytoplasmic retraction';
+		} else if (rIdx >= 2 && rIdx < 4 && col >= 2 && col <= 4) {
+			group = 'erastin';
+			name = 'Erastin IC₅₀';
+			dose = '5.0 µL (0.50 mM)';
+			od = '0.741';
+			viab = '50.0%';
+			colorClass = 'bg-amber-400 border-amber-500 hover:ring-2 hover:ring-amber-300';
+			phenotype = 'Cell shrinkage, rounded detached cells';
+		} else if (rIdx >= 2 && rIdx < 4 && col >= 5 && col <= 7) {
+			group = 'ursolic';
+			name = 'Ursolic Acid (Fixed)';
+			dose = '5.0 µL (0.50 mM)';
+			od = '0.985';
+			viab = '66.5%';
+			colorClass = 'bg-amber-500 border-amber-600 hover:ring-2 hover:ring-amber-400';
+			phenotype = 'Vacuolization, partial detachment';
+		} else if (rIdx >= 2 && rIdx < 4 && col >= 8 && col <= 10) {
+			group = 'combo';
+			name = 'Combo: UA + Erastin IC₁₀';
+			dose = '5.0 µL UA + 0.1 µL Erastin';
+			od = '1.433';
+			viab = '96.7%';
+			colorClass = 'bg-teal-300 border-teal-400 hover:ring-2 hover:ring-teal-200';
+			phenotype = 'Viability comparable to control (p > 0.05)';
+		} else if (rIdx >= 4 && rIdx < 6 && col >= 2 && col <= 4) {
+			group = 'combo';
+			name = 'Combo: UA + Erastin IC₂₅';
+			dose = '5.0 µL UA + 1.0 µL Erastin';
+			od = '0.902';
+			viab = '60.9%';
+			colorClass = 'bg-rose-400 border-rose-500 hover:ring-2 hover:ring-rose-300';
+			phenotype = 'Membrane blebbing, significant death (p < 0.05)';
+		} else if (rIdx >= 4 && rIdx < 6 && col >= 5 && col <= 7) {
+			group = 'combo';
+			name = 'Combo: UA + Erastin IC₅₀';
+			dose = '5.0 µL UA + 5.0 µL Erastin';
+			od = '0.889';
+			viab = '60.0% (Additive)';
+			colorClass = 'bg-rose-500 border-rose-600 hover:ring-2 hover:ring-rose-400';
+			phenotype = 'Cytoskeletal collapse, blebbing, nuclear fragmentation';
+		}
+
+		return { id: `${rowLetter}${col}`, group, name, dose, od, viab, colorClass, phenotype };
+	});
+	return { rowLetter, wells };
+});
+
+// Scientific References (Discreet footer)
+const references = [
+	'Allen, M., Bjerke, M., Edlund, H., Nelander, S., & Westermark, B. (2016). Origin of the U87MG glioma cell line: Good news and bad news. Science Translational Medicine, 8(354), 354re3.',
+	'Hei, B., Liu, R. E., & Li, M. (2024). Ursolic acid inhibits glioblastoma through suppressing TGFβ-mediated epithelial–mesenchymal transition (EMT) and angiogenesis. Heliyon, 10(6), e27722.',
+	'Ostrom, Q. T., Bauchet, L., Davis, F. G., et al. (2014). The epidemiology of glioma in adults: A "state of the science" review. Neuro-Oncology, 16(7), 896–913.',
+	'Stupp, R., Hegi, M. E., Mason, W. P., et al. (2009). Effects of radiotherapy with concomitant and adjuvant temozolomide versus radiotherapy alone on survival in glioblastoma. Lancet Oncology, 10(5), 459–466.',
+	'Thakkar, J. P., Dolecek, T. A., Horbinski, C., et al. (2014). Epidemiologic and molecular prognostic review of glioblastoma. Cancer Epidemiology, Biomarkers & Prevention, 23(10), 1985–1996.',
+	'Zhang, G., Fang, Y., Li, X., & Zhang, Z. (2022). Ferroptosis: A novel therapeutic strategy and mechanism of action in glioma. Frontiers in Oncology, 12, 947530.'
+];
+---
+
+<MainLayout activeTab="projects" title="Dual-Pathway Glioblastoma Cytotoxicity Research | Álvaro García Casas">
+	<!-- Breadcrumb -->
+	<div class="pt-8 pb-4">
+		<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">
+			&larr; Back to Engineering Projects
+		</a>
+	</div>
+
+	<!-- Hero Header: High Signal, Clean Scientific Framing -->
+	<header class="pb-8 border-b border-[#10172b]/10">
+		<div class="flex flex-wrap items-center gap-2 mb-3">
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-800 uppercase tracking-wider border border-emerald-500/20">
+				Cellular Oncology &amp; Therapeutics
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-200 text-slate-700">
+				Georgia Institute of Technology
+			</span>
+			<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-teal-100 text-teal-800">
+				In Vitro Wet-Lab Study
+			</span>
+		</div>
+
+		<h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#10172b] tracking-tight leading-tight">
+			Dual-Pathway Targeted Cytotoxicity in Glioblastoma (U87EGFP)
+		</h1>
+		<p class="text-base sm:text-lg font-medium text-emerald-800 mt-2">
+			Synergistic &amp; Additive Induction of Caspase-Mediated Apoptosis via Combined Ursolic Acid &amp; Erastin
+		</p>
+
+		<!-- Authorship & Quick Tags -->
+		<div class="mt-5 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-[#10172b]/10 text-xs text-[#485569]">
+			<div class="flex items-center gap-4">
+				<span><strong class="text-[#10172b]">Lead Investigator:</strong> Álvaro García Casas</span>
+				<span><strong class="text-[#10172b]">Affiliation:</strong> Georgia Institute of Technology</span>
+			</div>
+			<div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+				<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700">U87EGFP Cell Line</span>
+				<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700">CCK-8 Colorimetry</span>
+				<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700">EVOS FL Microscopy</span>
+				<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700">GraphPad Prism 9</span>
+			</div>
+		</div>
+	</header>
+
+	<!-- Key Metrics Strip -->
+	<section class="py-6">
+		<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+			{metrics.map(m => (
+				<div class="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:border-emerald-400 transition-all">
+					<span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mb-1">
+						{m.label}
+					</span>
+					<div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#10172b] font-mono">
+						{m.value}
+					</div>
+					<span class="text-xs text-slate-500 mt-1 block font-medium">
+						{m.detail}
+					</span>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- Background & Dual-Target Rationale (With Brain MRI Scan) -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+			<!-- Clinical Motivation & Molecular Rationale -->
+			<div class="lg:col-span-8 space-y-4">
+				<div>
+					<span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Background &amp; Motivation</span>
+					<h2 class="text-2xl font-bold text-[#10172b] mt-1">
+						Overcoming Glioblastoma Therapy Resistance
+					</h2>
+				</div>
+
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<!-- Erastin Mechanism Card -->
+					<div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+							<h3 class="text-sm font-bold text-[#10172b]">Erastin (Ferroptosis Induction)</h3>
+						</div>
+						<ul class="text-xs text-[#485569] space-y-1.5 list-disc list-inside leading-relaxed">
+							<li>Inhibits <strong>System Xc⁻</strong> cystine/glutamate antiporter.</li>
+							<li>Depletes intracellular <strong>Glutathione (GSH)</strong>.</li>
+							<li>Suppresses GPX4, triggering iron-dependent lipid peroxidation.</li>
+						</ul>
+					</div>
+
+					<!-- Ursolic Acid Mechanism Card -->
+					<div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+							<h3 class="text-sm font-bold text-[#10172b]">Ursolic Acid (Pro-Oxidative Stress)</h3>
+						</div>
+						<ul class="text-xs text-[#485569] space-y-1.5 list-disc list-inside leading-relaxed">
+							<li>Inhibits <strong>TGF-β signaling</strong> (blocks EMT &amp; angiogenesis).</li>
+							<li>Elevates intracellular <strong>Reactive Oxygen Species (ROS)</strong>.</li>
+							<li>Promotes mitochondrial outer membrane permeabilization.</li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Hypothesis Box -->
+				<div class="p-4 rounded-xl bg-emerald-950 text-emerald-100 border border-emerald-800/60 text-xs leading-relaxed font-mono flex items-start gap-3">
+					<span class="text-emerald-400 text-lg font-bold">&bull;</span>
+					<div>
+						<strong class="text-emerald-300 uppercase block mb-0.5">Core Hypothesis:</strong>
+						Erastin-mediated antioxidant depletion will synergize with Ursolic Acid-induced ROS overload, amplifying caspase-mediated apoptosis in U87EGFP glioblastoma cells beyond either single-agent effect.
+					</div>
+				</div>
+			</div>
+
+			<!-- GBM MRI Scan Visual Card -->
+			<div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 text-center">
+				<div class="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+					<img
+						src="/images/quant-lab/gbm_brain_mri.png"
+						alt="Axial T1-weighted contrast-enhanced MRI scan of Glioblastoma Multiforme"
+						class="w-full h-auto max-h-[220px] object-contain mx-auto block py-2"
+					/>
+					<span class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-mono text-slate-300">
+						Axial T1+C MRI: Glioblastoma Multiforme
+					</span>
+				</div>
+				<p class="text-[11px] text-slate-500 mt-2 font-mono">
+					GBM remains an aggressive, lethal brain tumor (&lt;5% 5-year survival) highly resistant to conventional pro-apoptotic regimens.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Study Objectives: Aim 1 & Aim 2 (Directly from Poster) -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			{aims.map(a => (
+				<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-2xs">
+					<div class="flex items-center justify-between mb-2">
+						<span class="text-xs font-mono font-bold text-emerald-800 uppercase tracking-wider">
+							{a.aim} &bull; {a.subtitle}
+						</span>
+						<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
+							{a.badge}
+						</span>
+					</div>
+					<h3 class="text-base font-bold text-[#10172b] mb-3">{a.title}</h3>
+					<ul class="text-xs text-[#485569] space-y-1.5 list-disc list-inside leading-relaxed">
+						{a.points.map(pt => (
+							<li>{pt}</li>
+						))}
+					</ul>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- Figure 4: REDESIGNED HIGH-RESOLUTION MICROSCOPY SUITE -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
+			<div>
+				<div class="flex items-center gap-2">
+					<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+					<span class="text-xs font-bold uppercase tracking-wider text-emerald-800">
+						Figure 4 &bull; Optical Phenotypic Validation
+					</span>
+				</div>
+				<h2 class="text-2xl font-bold text-[#10172b] mt-1">
+					EVOS Fluorescent Microscopy: Control vs. IC₅₀ Dual-Treated U87EGFP
+				</h2>
+			</div>
+			<span class="text-xs font-mono text-slate-500">
+				Nikon Eclipse / EVOS FL &bull; 10× Phase &bull; Scale = 300 µm
+			</span>
+		</div>
+
+		<!-- Microscope Viewport Shell -->
+		<div class="bg-[#040d14] rounded-2xl border border-emerald-950/80 shadow-2xl p-4 sm:p-6 text-white">
+			<!-- Header Toolbar -->
+			<div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-emerald-950 text-xs font-mono text-slate-400">
+				<div class="flex items-center gap-4">
+					<span class="flex items-center gap-1.5 text-emerald-400 font-bold">
+						<span class="w-2 h-2 rounded-full bg-emerald-400"></span> EGFP Reporter (Ex 488nm / Em 509nm)
+					</span>
+					<span class="hidden sm:inline text-slate-500">|</span>
+					<span class="hidden sm:inline text-slate-300">48h Drug Incubation</span>
+				</div>
+				<div class="flex items-center gap-2" id="micro-view-toggle">
+					<button data-view="sidebyside" class="micro-btn active px-3 py-1 rounded text-[11px] font-mono font-bold bg-emerald-600 text-white">
+						Side-by-Side View
+					</button>
+					<button data-view="control" class="micro-btn px-3 py-1 rounded text-[11px] font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300">
+						Control Only
+					</button>
+					<button data-view="treated" class="micro-btn px-3 py-1 rounded text-[11px] font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300">
+						IC₅₀ Combo Only
+					</button>
+				</div>
+			</div>
+
+			<!-- Microscope Display Panels -->
+			<div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4" id="micro-panels-container">
+				<!-- Panel 1: Control -->
+				<div id="panel-control" class="relative rounded-xl overflow-hidden bg-black border border-emerald-900/60 shadow-lg group">
+					<div class="aspect-4/3 overflow-hidden flex items-center justify-center bg-black">
+						<img
+							src="/images/quant-lab/microscopy_control_clean.png"
+							alt="Control U87EGFP glioblastoma cells showing dense cobblestone morphology and cluster layering"
+							class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+						/>
+					</div>
+					<!-- Top Glass Badge -->
+					<div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-xs border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
+						Control U87 Cells (Untreated)
+					</div>
+					<!-- Bottom Scale & Status -->
+					<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-slate-300 bg-black/75 px-3 py-1.5 rounded-lg border border-slate-800 backdrop-blur-xs">
+						<span>Morphology: <strong>Cobblestone Layers</strong></span>
+						<span class="text-emerald-400 font-bold">Viability: 100%</span>
+					</div>
+				</div>
+
+				<!-- Panel 2: IC50 Treated -->
+				<div id="panel-treated" class="relative rounded-xl overflow-hidden bg-black border border-rose-950/80 shadow-lg group">
+					<div class="aspect-4/3 overflow-hidden flex items-center justify-center bg-black">
+						<img
+							src="/images/quant-lab/microscopy_treated_clean.png"
+							alt="IC50 Erastin and Ursolic Acid treated U87 glioblastoma cells showing cell shrinkage and membrane blebbing"
+							class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+						/>
+					</div>
+					<!-- Top Glass Badge -->
+					<div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-xs border border-rose-500/40 text-rose-300 text-xs font-mono font-bold">
+						IC₅₀ E (5 µL) + UA (5 µL) Treated
+					</div>
+					<!-- Bottom Scale & Status -->
+					<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-slate-300 bg-black/75 px-3 py-1.5 rounded-lg border border-slate-800 backdrop-blur-xs">
+						<span>Morphology: <strong>Apoptotic Blebbing</strong></span>
+						<span class="text-rose-400 font-bold">Viability: ~60%</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Morphological Feature Markers (Red Outlines Key) -->
+			<div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-emerald-950/80 text-xs">
+				<div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-900/40">
+					<strong class="text-emerald-300 block font-mono mb-1">Normal U87 Morphology (Red Circles):</strong>
+					<p class="text-slate-300 leading-relaxed text-[11px]">
+						Cells maintain a rounded shape and organize in dense clusters with continuous cytoplasmic membranes and healthy nucleolar organization.
+					</p>
+				</div>
+				<div class="p-3 rounded-lg bg-rose-950/30 border border-rose-900/40">
+					<strong class="text-rose-300 block font-mono mb-1">Apoptotic Morphology (Red Outlines):</strong>
+					<p class="text-slate-300 leading-relaxed text-[11px]">
+						Distinct apoptotic markers: visible shrinkage of the nucleus, central fragmentation spots, cytoskeletal collapse, and sharp membrane bulging/blebbing.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Quantitative Results: Aim 1 & Aim 2 (Figures 1, 2, 3) -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="mb-4">
+			<span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Quantitative Results</span>
+			<h2 class="text-2xl font-bold text-[#10172b] mt-1">
+				CCK-8 Colorimetric Dose-Response &amp; Interaction Curves
+			</h2>
+		</div>
+
+		<!-- 3-Tab Card Directly Reflecting Poster Figures -->
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+			<div class="flex flex-wrap items-center gap-2 pb-4 border-b border-slate-200" id="results-tabs">
+				<button data-fig="fig1" class="res-tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#10172b] text-white">
+					Fig 1: Erastin Curve (Aim 1)
+				</button>
+				<button data-fig="fig2" class="res-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">
+					Fig 2: Ursolic Acid Curve (Aim 1)
+				</button>
+				<button data-fig="fig3" class="res-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">
+					Fig 3: Combo Viability (Aim 2)
+				</button>
+			</div>
+
+			<!-- Fig 1: Erastin -->
+			<div id="pane-fig1" class="res-pane mt-5 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+				<div class="md:col-span-6 bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-center">
+					<img
+						src="/images/quant-lab/Module4_Final_Report_image1.png"
+						alt="Figure 1: CCK-8 dose-response curve for erastin in U87 cells"
+						class="w-full max-h-[280px] object-contain rounded-lg"
+					/>
+				</div>
+				<div class="md:col-span-6 space-y-3">
+					<span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">
+						Erastin Dose-Response
+					</span>
+					<h3 class="text-lg font-bold text-[#10172b]">Clear Monotonic Apoptotic Profile</h3>
+					<p class="text-xs text-[#485569] leading-relaxed">
+						Consistent with literature, Erastin demonstrated a clear, concentration-dependent reduction in U87 cell viability:
+					</p>
+					<div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono space-y-1.5">
+						<div class="flex justify-between"><span>IC₁₀ Dose:</span> <strong class="text-emerald-700">0.1 µL (0.01 mM)</strong></div>
+						<div class="flex justify-between"><span>IC₂₅ Dose:</span> <strong class="text-teal-700">1.0 µL (0.10 mM)</strong></div>
+						<div class="flex justify-between"><span>IC₅₀ Dose:</span> <strong class="text-rose-700">5.0 µL (0.50 mM)</strong></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Fig 2: Ursolic Acid -->
+			<div id="pane-fig2" class="res-pane hidden mt-5 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+				<div class="md:col-span-6 bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-center">
+					<img
+						src="/images/quant-lab/Module4_Final_Report_image2.png"
+						alt="Figure 2: CCK-8 dose-response curve for Ursolic Acid in U87 cells"
+						class="w-full max-h-[280px] object-contain rounded-lg"
+					/>
+				</div>
+				<div class="md:col-span-6 space-y-3">
+					<span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-100 text-amber-800">
+						Working Dose Selection
+					</span>
+					<h3 class="text-lg font-bold text-[#10172b]">Ursolic Acid (UA) Calibration</h3>
+					<p class="text-xs text-[#485569] leading-relaxed">
+						UA titration did not show signs of killing cells except at elevated concentrations. After 3 CCK-8 attempts across dosage ranges, <strong>5.0 µL</strong> was established as the optimal static treatment dose for Aim 2.
+					</p>
+					<div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-900 font-mono">
+						Static working dose: <strong>5.0 µL (0.50 mM effective)</strong>
+					</div>
+				</div>
+			</div>
+
+			<!-- Fig 3: Combination -->
+			<div id="pane-fig3" class="res-pane hidden mt-5 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+				<div class="md:col-span-6 bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-center">
+					<img
+						src="/images/quant-lab/Module4_Final_Report_image3.png"
+						alt="Figure 3: CCK-8 viability of U87 cells treated with Erastin + UA combination"
+						class="w-full max-h-[280px] object-contain rounded-lg"
+					/>
+				</div>
+				<div class="md:col-span-6 space-y-3">
+					<span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-100 text-rose-800">
+						Aim 2 Interaction
+					</span>
+					<h3 class="text-lg font-bold text-[#10172b]">Additive Cytotoxicity (~40% Kill)</h3>
+					<p class="text-xs text-[#485569] leading-relaxed">
+						Viability decreased from 100% (control) to ~60% at the IC₅₀ combination (5 µL Erastin + 5 µL UA), demonstrating a clear additive treatment effect in GBM.
+					</p>
+					<div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono space-y-1.5">
+						<div class="flex justify-between"><span>Untreated Control:</span> <strong class="text-emerald-700">100.0%</strong></div>
+						<div class="flex justify-between"><span>UA + Erastin IC₁₀:</span> <strong class="text-slate-700">96.7% ± 4.4%</strong></div>
+						<div class="flex justify-between"><span>UA + Erastin IC₂₅:</span> <strong class="text-amber-700">60.9% ± 2.6%</strong></div>
+						<div class="flex justify-between"><span>UA + Erastin IC₅₀:</span> <strong class="text-rose-700">~60.0% (Additive)</strong></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Interactive 96-Well Microplate Dose-Response Simulator -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="mb-4">
+			<span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Interactive Lab Bench</span>
+			<h2 class="text-2xl font-bold text-[#10172b] mt-1">
+				96-Well Plate Micro-Titration Explorer
+			</h2>
+			<p class="text-xs text-[#485569]">
+				Hover or click any well to inspect concentration, OD 450 nm, viability %, and phenotype.
+			</p>
+		</div>
+
+		<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+			<!-- Filter buttons -->
+			<div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200">
+				<div class="flex flex-wrap items-center gap-1.5">
+					<button data-group="all" class="plate-filter-btn active px-2.5 py-1 rounded text-xs font-mono font-bold bg-[#10172b] text-white">
+						All
+					</button>
+					<button data-group="control" class="plate-filter-btn px-2.5 py-1 rounded text-xs font-mono font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">
+						Control
+					</button>
+					<button data-group="erastin" class="plate-filter-btn px-2.5 py-1 rounded text-xs font-mono font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800">
+						Erastin
+					</button>
+					<button data-group="ursolic" class="plate-filter-btn px-2.5 py-1 rounded text-xs font-mono font-bold bg-amber-100 hover:bg-amber-200 text-amber-800">
+						UA
+					</button>
+					<button data-group="combo" class="plate-filter-btn px-2.5 py-1 rounded text-xs font-mono font-bold bg-rose-100 hover:bg-rose-200 text-rose-800">
+						Combo
+					</button>
+				</div>
+				<div class="flex items-center gap-3 text-[11px] font-mono text-slate-500">
+					<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> High</span>
+					<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Mid</span>
+					<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Kill</span>
+				</div>
+			</div>
+
+			<!-- Grid and Telemetry -->
+			<div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+				<div class="lg:col-span-8 overflow-x-auto p-3 bg-slate-50 rounded-xl border border-slate-200">
+					<div class="inline-block min-w-[480px] w-full">
+						<div class="grid grid-cols-13 gap-1 text-center text-[10px] font-mono text-slate-400 font-semibold mb-1.5">
+							<div></div>
+							{Array.from({ length: 12 }, (_, i) => <div>{i + 1}</div>)}
+						</div>
+						{plateGrid.map(row => (
+							<div class="grid grid-cols-13 gap-1 items-center mb-1">
+								<div class="text-[10px] font-mono text-slate-400 font-bold text-center">{row.rowLetter}</div>
+								{row.wells.map(well => (
+									<button
+										class={`well-btn w-5 h-5 sm:w-6 sm:h-6 rounded-full border transition-all cursor-pointer ${well.colorClass}`}
+										data-well={well.id}
+										data-group={well.group}
+										data-name={well.name}
+										data-dose={well.dose}
+										data-od={well.od}
+										data-viab={well.viab}
+										data-pheno={well.phenotype}
+										title={`Well ${well.id}: ${well.name}`}
+									></button>
+								))}
+							</div>
+						))}
+					</div>
+				</div>
+
+				<!-- Live Telemetry Card -->
+				<div class="lg:col-span-4 bg-[#0d1624] text-white p-4 rounded-xl border border-slate-700 shadow-inner">
+					<div class="flex items-center justify-between pb-2 border-b border-slate-700">
+						<span class="text-[11px] font-mono font-bold text-emerald-400 uppercase">Well Telemetry</span>
+						<span id="readout-well-id" class="px-2 py-0.5 rounded bg-slate-800 text-[11px] font-mono text-white font-bold border border-slate-600">
+							Well B3
+						</span>
+					</div>
+					<div class="mt-3 space-y-2 text-xs">
+						<div>
+							<span class="text-[10px] font-mono text-slate-400 uppercase block">Condition:</span>
+							<div id="readout-condition" class="font-bold text-white mt-0.5">Untreated Control</div>
+						</div>
+						<div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+							<div>
+								<span class="text-[10px] font-mono text-slate-400 uppercase block">Dose:</span>
+								<div id="readout-dose" class="font-mono text-emerald-300 font-semibold">0 µL (0.05% DMSO)</div>
+							</div>
+							<div>
+								<span class="text-[10px] font-mono text-slate-400 uppercase block">OD 450nm:</span>
+								<div id="readout-od" class="font-mono text-cyan-300 font-semibold">1.482</div>
+							</div>
+						</div>
+						<div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+							<span class="text-[10px] font-mono text-slate-400 uppercase">Viability:</span>
+							<span id="readout-viab" class="text-lg font-mono font-extrabold text-emerald-400">100.0%</span>
+						</div>
+						<div class="pt-2 border-t border-slate-800">
+							<span class="text-[10px] font-mono text-slate-400 uppercase block">Phenotype:</span>
+							<p id="readout-pheno" class="text-slate-300 mt-0.5 text-[11px] italic">Dense cobblestone monolayer, intact membranes.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Materials, Methods & Lab Skills (Clean Visual Badges) -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="mb-4">
+			<span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Experimental Infrastructure</span>
+			<h2 class="text-xl font-bold text-[#10172b] mt-1">
+				Materials, Reagents &amp; Laboratory Methodology
+			</h2>
+		</div>
+
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			{materials.map(m => (
+				<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+					<h3 class="text-xs font-bold font-mono text-emerald-950 uppercase tracking-wider mb-2.5 pb-2 border-b border-slate-100">
+						{m.category}
+					</h3>
+					<div class="flex flex-wrap gap-1.5">
+						{m.items.map(it => (
+							<span class="px-2 py-1 rounded bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium">
+								{it}
+							</span>
+						))}
+					</div>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<!-- Conclusions & Future Directions -->
+	<section class="py-8 border-t border-[#10172b]/10">
+		<div class="bg-gradient-to-br from-[#10172b] to-[#0a1829] rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+			<span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold block mb-1">
+				Conclusion &bull; Translational Impact
+			</span>
+			<h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+				Additive Cytotoxicity as a Therapeutic Strategy in GBM
+			</h2>
+			<div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300 leading-relaxed">
+				<p>
+					Combined Erastin and Ursolic Acid treatment induces an <strong>additive reduction in U87 glioblastoma viability to ~60%</strong>. This bypasses the typical apoptosis resistance of glioblastoma via concurrent System Xc⁻/GPX4 ferroptosis and pro-oxidative mitochondrial stress.
+				</p>
+				<p>
+					Future directions will directly confirm pathway markers using selective inhibitors (Ferrostatin-1 for ferroptosis and Z-VAD-FMK for pan-caspases) and repeat flow cytometry (Annexin V / Caspase 3/7) across multiple glioblastoma lines.
+				</p>
+			</div>
+
+			<div class="mt-6 pt-4 border-t border-slate-800 text-xs font-mono text-slate-400">
+				<div>Lead: Álvaro García Casas &bull; Georgia Institute of Technology</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- References Section (Discreet, Footer Placement) -->
+	<footer class="py-8 border-t border-[#10172b]/10 text-slate-500">
+		<div class="max-w-4xl">
+			<h3 class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-3">
+				Scientific References
+			</h3>
+			<ol class="space-y-1.5 text-[11px] font-sans leading-relaxed text-slate-500 list-decimal list-inside">
+				{references.map(ref => (
+					<li>{ref}</li>
+				))}
+			</ol>
+		</div>
+	</footer>
+
+	<!-- Footer Navigation -->
+	<div class="py-12 border-t border-slate-200 flex items-center justify-center">
+		<a href="/projects" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a4478] hover:text-[#10172b] transition-colors">
+			&larr; Return to All Engineering Projects
+		</a>
+	</div>
+
+	<!-- Client-side Interactive Scripts -->
+	<script is:inline>
+		// --- 1. Microscope Viewport Toggle ---
+		const microBtns = document.querySelectorAll('#micro-view-toggle .micro-btn');
+		const panelControl = document.getElementById('panel-control');
+		const panelTreated = document.getElementById('panel-treated');
+		const microContainer = document.getElementById('micro-panels-container');
+
+		microBtns.forEach(btn => {
+			btn.addEventListener('click', () => {
+				microBtns.forEach(b => {
+					b.classList.remove('active', 'bg-emerald-600', 'text-white');
+					b.classList.add('bg-slate-800', 'text-slate-300');
+				});
+				btn.classList.add('active', 'bg-emerald-600', 'text-white');
+				btn.classList.remove('bg-slate-800', 'text-slate-300');
+
+				const view = btn.getAttribute('data-view');
+				if (view === 'sidebyside') {
+					panelControl.classList.remove('hidden');
+					panelTreated.classList.remove('hidden');
+					microContainer.className = 'mt-5 grid grid-cols-1 md:grid-cols-2 gap-4';
+				} else if (view === 'control') {
+					panelControl.classList.remove('hidden');
+					panelTreated.classList.add('hidden');
+					microContainer.className = 'mt-5 grid grid-cols-1 max-w-xl mx-auto';
+				} else if (view === 'treated') {
+					panelControl.classList.add('hidden');
+					panelTreated.classList.remove('hidden');
+					microContainer.className = 'mt-5 grid grid-cols-1 max-w-xl mx-auto';
+				}
+			});
+		});
+
+		// --- 2. Results Tabs Switcher ---
+		const resTabs = document.querySelectorAll('#results-tabs .res-tab-btn');
+		const resPanes = document.querySelectorAll('.res-pane');
+
+		resTabs.forEach(tBtn => {
+			tBtn.addEventListener('click', () => {
+				resTabs.forEach(b => {
+					b.classList.remove('active', 'bg-[#10172b]', 'text-white');
+					b.classList.add('bg-slate-100', 'text-slate-700');
+				});
+				tBtn.classList.add('active', 'bg-[#10172b]', 'text-white');
+				tBtn.classList.remove('bg-slate-100', 'text-slate-700');
+
+				const targetFig = tBtn.getAttribute('data-fig');
+				resPanes.forEach(pane => {
+					if (pane.id === `pane-${targetFig}`) {
+						pane.classList.remove('hidden');
+					} else {
+						pane.classList.add('hidden');
+					}
+				});
+			});
+		});
+
+		// --- 3. 96-Well Microplate Inspector Logic ---
+		const wellBtns = document.querySelectorAll('.well-btn');
+		const readoutWellId = document.getElementById('readout-well-id');
+		const readoutCondition = document.getElementById('readout-condition');
+		const readoutDose = document.getElementById('readout-dose');
+		const readoutOd = document.getElementById('readout-od');
+		const readoutViab = document.getElementById('readout-viab');
+		const readoutPheno = document.getElementById('readout-pheno');
+
+		function updateWell(btn) {
+			readoutWellId.textContent = `Well ${btn.getAttribute('data-well')}`;
+			readoutCondition.textContent = btn.getAttribute('data-name');
+			readoutDose.textContent = btn.getAttribute('data-dose');
+			readoutOd.textContent = btn.getAttribute('data-od');
+			readoutViab.textContent = btn.getAttribute('data-viab');
+			readoutPheno.textContent = btn.getAttribute('data-pheno');
+
+			const grp = btn.getAttribute('data-group');
+			if (grp === 'combo') {
+				readoutViab.className = 'text-lg font-mono font-extrabold text-rose-400';
+			} else if (grp === 'control') {
+				readoutViab.className = 'text-lg font-mono font-extrabold text-emerald-400';
+			} else {
+				readoutViab.className = 'text-lg font-mono font-extrabold text-teal-400';
+			}
+		}
+
+		wellBtns.forEach(btn => {
+			btn.addEventListener('mouseenter', () => updateWell(btn));
+			btn.addEventListener('click', () => updateWell(btn));
+		});
+
+		// Filter buttons
+		const filterBtns = document.querySelectorAll('.plate-filter-btn');
+		filterBtns.forEach(fBtn => {
+			fBtn.addEventListener('click', () => {
+				filterBtns.forEach(b => {
+					b.classList.remove('active', 'bg-[#10172b]', 'text-white');
+					b.classList.add('bg-slate-100', 'text-slate-700');
+				});
+				fBtn.classList.add('active', 'bg-[#10172b]', 'text-white');
+				fBtn.classList.remove('bg-slate-100', 'text-slate-700');
+
+				const grp = fBtn.getAttribute('data-group');
+				wellBtns.forEach(wb => {
+					if (grp === 'all' || wb.getAttribute('data-group') === grp) {
+						wb.style.opacity = '1';
+						wb.style.transform = 'scale(1)';
+					} else {
+						wb.style.opacity = '0.2';
+						wb.style.transform = 'scale(0.85)';
+					}
+				});
+			});
+		});
+	</script>
+</MainLayout>
