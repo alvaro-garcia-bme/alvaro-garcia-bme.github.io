@@ -61,16 +61,10 @@ const {
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 		
-		<!-- Anti-Clickjacking Frame Buster -->
-		<style id="antiClickjack">body{display:none !important;}</style>
+		<!-- Anti-Clickjacking Frame Buster (Safe Pure JS) -->
 		<script is:inline>
-			if (self === top) {
-				var antiClickjack = document.getElementById("antiClickjack");
-				if (antiClickjack && antiClickjack.parentNode) {
-					antiClickjack.parentNode.removeChild(antiClickjack);
-				}
-			} else {
-				top.location = self.location;
+			if (top !== self) {
+				top.location.replace(self.location.href);
 			}
 		</script>
 
